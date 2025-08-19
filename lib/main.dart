@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:scan_qrcode/screens/home_body.dart';
 import 'screens/history_screen.dart';
-import 'screens/feedback.dart';
 import 'package:page_transition/page_transition.dart';
 // import 'provider/theme_provider.dart';
 
@@ -64,7 +63,6 @@ class _HomeState extends State<Home> {
   List<Widget> widgetList = [
     const HomeBody(),
     const HistoryScreen(),
-    const Improvement(),
   ];
 
   @override
@@ -95,10 +93,6 @@ class _HomeState extends State<Home> {
                 GButton(
                   icon: Icons.history,
                   text: 'History',
-                ),
-                GButton(
-                  icon: Icons.feedback,
-                  text: 'Feedback',
                 ),
               ]),
         ),

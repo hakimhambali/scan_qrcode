@@ -6,8 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
 
-import 'loading_screen.dart';
-
 class SignInGoogle extends StatelessWidget {
   const SignInGoogle({Key? key}) : super(key: key);
 

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:scan_qrcode/screens/forgot_password.dart';
 import 'package:scan_qrcode/screens/signingoogle.dart';
-import 'package:scan_qrcode/screens/signinphonenumber.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -254,23 +253,6 @@ class _LoginState extends State<Login> {
                       child: const Text('Sign In With Google Account'),
                     ),
                   ),
-                  // SizedBox(
-                  //   width: 300,
-                  //   child: ElevatedButton(
-                  //     style: ButtonStyle(
-                  //         backgroundColor: MaterialStateProperty.all(
-                  //             Colors.black), foregroundColor: MaterialStateProperty.all(
-                  //             Colors.white)),
-                  //     onPressed: () async {
-                  //       Navigator.push(
-                  //           context,
-                  //           MaterialPageRoute(
-                  //               builder: (context) =>
-                  //                   const SignInPhoneNumber()));
-                  //     },
-                  //     child: const Text('Sign In With Phone Number'),
-                  //   ),
-                  // ),
                 ],
               ),
             ],
