@@ -19,7 +19,7 @@ void main() async {
     // themeMode: ThemeMode.system,
     // theme: MyThemes.lightTheme,
     // darkTheme: MyThemes.darkTheme,
-    home: const SplashScreen(),
+    home: SplashScreen(),
   ));
 }
 
@@ -73,28 +73,34 @@ class _HomeState extends State<Home> {
         color: Colors.black,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
-          child: GNav(
-              backgroundColor: Colors.black,
-              color: Colors.white,
-              activeColor: Colors.white,
-              tabBackgroundColor: Colors.grey.shade800,
-              gap: 8,
-              onTabChange: (index) {
-                setState(() {
-                  myIndex = index;
-                });
-              },
-              padding: const EdgeInsets.all(16),
-              tabs: const [
-                GButton(
-                  icon: Icons.home,
-                  text: 'Home',
-                ),
-                GButton(
-                  icon: Icons.history,
-                  text: 'History',
-                ),
-              ]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GNav(
+                backgroundColor: Colors.black,
+                color: Colors.white,
+                activeColor: Colors.white,
+                tabBackgroundColor: Colors.grey.shade800,
+                gap: 8,
+                onTabChange: (index) {
+                  setState(() {
+                    myIndex = index;
+                  });
+                },
+                padding: const EdgeInsets.all(16),
+                tabs: const [
+                  GButton(
+                    icon: Icons.home,
+                    text: 'Home',
+                  ),
+                  GButton(
+                    icon: Icons.history,
+                    text: 'History',
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

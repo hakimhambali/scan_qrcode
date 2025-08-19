@@ -244,6 +244,9 @@ class _RegisterState extends State<Register> {
                     ],
                   ),
                   const Text("OR"),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   SizedBox(
                     width: 300,
                     child: ElevatedButton(

@@ -237,6 +237,9 @@ class _LoginState extends State<Login> {
                     ],
                   ),
                   const Text("OR"),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   SizedBox(
                     width: 300,
                     child: ElevatedButton(

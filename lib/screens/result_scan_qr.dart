@@ -29,8 +29,9 @@ class _ResultScanQRState extends State<ResultScanQR> {
         backgroundColor: Colors.purple.shade50,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Link QR Scanner'),
+          title: const Text('Link Scanned QR'),
           backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
         ),
         body: Center(
           child: Column(
