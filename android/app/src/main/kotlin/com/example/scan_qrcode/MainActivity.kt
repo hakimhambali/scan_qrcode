@@ -1,4 +1,4 @@
-package com.example.scan_qrcode
+package com.codexcess.masterz
 
 import io.flutter.embedding.android.FlutterActivity
 

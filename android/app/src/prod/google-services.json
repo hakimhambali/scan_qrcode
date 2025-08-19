@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "306850243015",
+    "project_id": "masterz-ff7d4",
+    "storage_bucket": "masterz-ff7d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306850243015:android:4c6aa3b412ecbe6894b9e2",
+        "android_client_info": {
+          "package_name": "com.codexcess.masterz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306850243015-5icbcbldbsvk1bpir6bcm732gp3khvil.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codexcess.masterz",
+            "certificate_hash": "d5311287781ce0c88f66b75e3b374755a3b51dd2"
+          }
+        },
+        {
+          "client_id": "306850243015-0gn9mi7ko40988st26da9ktb61gc81au.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAw9PJPHGkrQW8ZoogK23hkdyw4Rn1ooF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "306850243015-0gn9mi7ko40988st26da9ktb61gc81au.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
