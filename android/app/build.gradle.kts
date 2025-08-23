@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.codexcess.masterz"
+    namespace = "com.codexcess.qrcodescanner"
     compileSdk = 35
     ndkVersion = "27.3.13750724"
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.codexcess.masterz"
+        applicationId = "com.codexcess.qrcodescanner"
         minSdk = 23
         targetSdk = 35
         versionCode = flutter.versionCode
@@ -41,12 +41,12 @@ android {
     productFlavors {
         create("prod") {
             dimension = "default"
-            resValue("string", "MasterZ", "Flavors Example")
+            resValue("string", "QRCodeScanner", "Flavors Example")
             applicationIdSuffix = ""
         }
         create("dev") {
             dimension = "default"
-            resValue("string", "MasterZ", "Dev Flavors Example")
+            resValue("string", "QRCodeScanner", "Dev Flavors Example")
             applicationIdSuffix = ".dev"
         }
     }
