@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:scan_qrcode/model/user.dart';
 import 'package:scan_qrcode/screens/result_scan_qr.dart';
@@ -199,18 +198,5 @@ class _HistoryScreenState extends State<HistoryScreen> {
       print('Could not launch $url');
       return false;
     }
-  }
-
-  Future<void> openFile({required String result}) async {
-    // debugPrint(result);
-    final result2 = await OpenFilex.open(result);
-    if (result2.type.toString() == "ResultType.fileNotFound") {
-      ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Image maybe was deleted in your phone')),
-      );
-    }
-    setState(() {});
   }
 }

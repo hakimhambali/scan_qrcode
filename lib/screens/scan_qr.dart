@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart' as mlkit;
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
@@ -18,10 +17,6 @@ class ScanQR extends StatefulWidget {
 class _ScanQRState extends State<ScanQR> {
   MobileScannerController cameraController = MobileScannerController();
   bool isProcessing = false;
-
-  bool imageLabelChecking = false;
-  XFile? imageFile;
-  String imageLabel = "";
 
   @override
   void dispose() {
@@ -79,12 +74,14 @@ class _ScanQRState extends State<ScanQR> {
       isProcessing = true;
     });
 
-    createScanQRHistory(
+    await createScanQRHistory(
         originalLink: code,
         newLink: code,
         date: DateTime.now().toString());
 
     await cameraController.stop();
+    
+    if (!mounted) return;
     
     Navigator.push(
       context,
@@ -136,15 +133,18 @@ class _ScanQRState extends State<ScanQR> {
             IconButton(
               icon: const Icon(Icons.image, color: Colors.white),
               onPressed: () {
-                getImage();
+                pickImageAndScan();
               },
             ),
           ],
         ),
       );
 
-  Future createScanQRHistory(
-      {required String originalLink, newLink, required String date}) async {
+  Future<void> createScanQRHistory({
+    required String originalLink, 
+    required String newLink, 
+    required String date
+  }) async {
     final historyUser = FirebaseFirestore.instance.collection('history').doc();
     final json = {
       'docID': historyUser.id,
@@ -157,60 +157,74 @@ class _ScanQRState extends State<ScanQR> {
     await historyUser.set(json);
   }
 
-  void getImage() async {
+  void pickImageAndScan() async {
     try {
-      final pickedImage =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (pickedImage != null) {
-        imageLabelChecking = true;
-        imageFile = pickedImage;
-        setState(() {});
-        getRecognisedQR(pickedImage);
-      }
-    } catch (e) {
-      imageLabelChecking = false;
-      imageFile = null;
-      setState(() {});
-    }
-  }
-
-  void getRecognisedQR(XFile image) async {
-    final inputImage = mlkit.InputImage.fromFilePath(image.path);
-    final List<mlkit.BarcodeFormat> formats = [mlkit.BarcodeFormat.all];
-    final barcodeScanner = mlkit.BarcodeScanner(formats: formats);
-    final List<mlkit.Barcode> barcodes =
-        await barcodeScanner.processImage(inputImage);
-
-    if (barcodes.isNotEmpty) {
-      for (mlkit.Barcode barcode in barcodes) {
-        if (barcode.displayValue != null) {
-          createScanQRHistory(
-              originalLink: barcode.displayValue!,
-              newLink: barcode.displayValue!,
-              date: DateTime.now().toString());
-          
-          await cameraController.stop();
-          
-          Navigator.push(
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedImage = await picker.pickImage(
+        source: ImageSource.gallery,
+      );
+      
+      if (pickedImage == null) return;
+      
+      // Analyze the image using mobile_scanner
+      final BarcodeCapture? barcodes = await cameraController.analyzeImage(
+        pickedImage.path,
+      );
+      
+      if (barcodes != null && barcodes.barcodes.isNotEmpty) {
+        for (final barcode in barcodes.barcodes) {
+          if (barcode.rawValue != null) {
+            await createScanQRHistory(
+              originalLink: barcode.rawValue!,
+              newLink: barcode.rawValue!,
+              date: DateTime.now().toString(),
+            );
+            
+            await cameraController.stop();
+            
+            if (!mounted) return;
+            
+            Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ResultScanQR(
-                      result: barcode.displayValue!,
-                      onPop: (resume) {
-                        setState(() {
-                          isProcessing = false;
-                        });
-                        cameraController.start();
-                      })));
-          break;
+                builder: (context) => ResultScanQR(
+                  result: barcode.rawValue!,
+                  onPop: (resume) {
+                    setState(() {
+                      isProcessing = false;
+                    });
+                    cameraController.start();
+                  },
+                ),
+              ),
+            );
+            break;
+          }
         }
+      } else {
+        if (!mounted) return;
+        
+        PanaraInfoDialog.show(
+          context,
+          title: "Unable to detect QR code",
+          message: 'Are you sure you uploaded the correct QR code file? Please try again.',
+          buttonText: "Close",
+          onTapDismiss: () {
+            Navigator.pop(context);
+          },
+          panaraDialogType: PanaraDialogType.error,
+          barrierDismissible: false,
+        );
       }
-    } else {
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      
+      if (!mounted) return;
+      
       PanaraInfoDialog.show(
         context,
-        title: "Unable to detect QR code",
-        message:
-            'Are you sure upload the correct QR code file ? or please try again',
+        title: "Error",
+        message: 'Failed to pick image. Please try again.',
         buttonText: "Close",
         onTapDismiss: () {
           Navigator.pop(context);
