@@ -16,6 +16,8 @@ class ScanQR extends StatefulWidget {
 
 class _ScanQRState extends State<ScanQR> {
   MobileScannerController cameraController = MobileScannerController();
+  bool torchOn = false;
+  CameraFacing facing = CameraFacing.back;
   bool isProcessing = false;
 
   @override
@@ -32,25 +34,67 @@ class _ScanQRState extends State<ScanQR> {
   }
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-        child: Scaffold(
-          body: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              buildQRView(context),
-              Positioned(top: 10, child: buildControlButtons()),
-              // Custom overlay since MobileScanner doesn't have overlay parameter
-              CustomPaint(
-                size: Size.infinite,
-                painter: ScannerOverlay(
-                  scanArea: MediaQuery.of(context).size.width * 0.8,
-                  borderColor: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-            ],
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // 🔑 Make sure controller is passed here
+          MobileScanner(
+            controller: cameraController,
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                debugPrint('Barcode found! ${barcode.rawValue}');
+              }
+            },
           ),
-        ),
-      );
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.black54,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Torch
+                  IconButton(
+                    color: Colors.white,
+                    icon: Icon(torchOn ? Icons.flash_on : Icons.flash_off),
+                    onPressed: () async {
+                      await cameraController.toggleTorch();
+                      setState(() => torchOn = !torchOn);
+                    },
+                  ),
+
+                  // Switch camera
+                  IconButton(
+                    color: Colors.white,
+                    icon: const Icon(Icons.cameraswitch),
+                    onPressed: () async {
+                      await cameraController.switchCamera();
+                      setState(() {
+                        facing = (facing == CameraFacing.back)
+                            ? CameraFacing.front
+                            : CameraFacing.back;
+                      });
+                    },
+                  ),
+
+                  // Pick from gallery
+                  IconButton(
+                    color: Colors.white,
+                    icon: const Icon(Icons.image),
+                    onPressed: pickImageAndScan,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget buildQRView(BuildContext context) => MobileScanner(
         controller: cameraController,
@@ -104,41 +148,6 @@ class _ScanQRState extends State<ScanQR> {
             content: Text('Successfully Scan QR')),
       );
   }
-
-  Widget buildControlButtons() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.white24,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.flash_on, color: Colors.white),
-              onPressed: () async {
-                await cameraController.toggleTorch();
-                setState(() {});
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.switch_camera, color: Colors.white),
-              onPressed: () async {
-                await cameraController.switchCamera();
-                setState(() {});
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.image, color: Colors.white),
-              onPressed: () {
-                pickImageAndScan();
-              },
-            ),
-          ],
-        ),
-      );
 
   Future<void> createScanQRHistory({
     required String originalLink, 
