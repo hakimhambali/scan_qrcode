@@ -43,19 +43,41 @@ class _ScanQRState extends State<ScanQR> {
           MobileScanner(
             controller: cameraController,
             onDetect: (capture) {
-              final List<Barcode> barcodes = capture.barcodes;
-              for (final barcode in barcodes) {
-                debugPrint('Barcode found! ${barcode.rawValue}');
+              if (!isProcessing) {
+                final List<Barcode> barcodes = capture.barcodes;
+                for (final barcode in barcodes) {
+                  if (barcode.rawValue != null) {
+                    debugPrint('Barcode found! ${barcode.rawValue}');
+                    onQRDetected(barcode.rawValue!);
+                    break;
+                  }
+                }
               }
             },
           ),
+          // Scanner overlay with clear center and dark edges
+          CustomPaint(
+            painter: ScannerOverlay(
+              scanArea: 250,
+              borderColor: Colors.white,
+            ),
+            child: Container(),
+          ),
           Align(
-            alignment: Alignment.bottomCenter,
+            alignment: Alignment.topCenter,
             child: Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.black54,
+              margin: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 16,
+                left: 20,
+                right: 20,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical:8),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(25),
+              ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Torch
                   IconButton(
@@ -66,6 +88,7 @@ class _ScanQRState extends State<ScanQR> {
                       setState(() => torchOn = !torchOn);
                     },
                   ),
+                  const SizedBox(width: 20),
 
                   // Switch camera
                   IconButton(
@@ -80,6 +103,7 @@ class _ScanQRState extends State<ScanQR> {
                       });
                     },
                   ),
+                  const SizedBox(width: 20),
 
                   // Pick from gallery
                   IconButton(

@@ -2,10 +2,8 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:scan_qrcode/screens/home_body.dart';
-import 'screens/history_screen.dart';
 import 'package:page_transition/page_transition.dart';
+import 'navigation_wrapper.dart';
 // import 'provider/theme_provider.dart';
 
 void main() async {
@@ -41,7 +39,7 @@ class SplashScreen extends StatelessWidget {
         ],
       ),
       backgroundColor: Colors.purple.shade50,
-      nextScreen: Home(),
+      nextScreen: const NavigationWrapper(initialIndex: 0),
       splashIconSize: 500,
       duration: 1,
       splashTransition: SplashTransition.fadeTransition,
@@ -51,58 +49,3 @@ class SplashScreen extends StatelessWidget {
   }
 }
 
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  int myIndex = 0;
-  List<Widget> widgetList = [
-    const HomeBody(),
-    const HistoryScreen(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: widgetList[myIndex],
-      bottomNavigationBar: Container(
-        color: Colors.black,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GNav(
-                backgroundColor: Colors.black,
-                color: Colors.white,
-                activeColor: Colors.white,
-                tabBackgroundColor: Colors.grey.shade800,
-                gap: 8,
-                onTabChange: (index) {
-                  setState(() {
-                    myIndex = index;
-                  });
-                },
-                padding: const EdgeInsets.all(16),
-                tabs: const [
-                  GButton(
-                    icon: Icons.home,
-                    text: 'Home',
-                  ),
-                  GButton(
-                    icon: Icons.history,
-                    text: 'History',
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
