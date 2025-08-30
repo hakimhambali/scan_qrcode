@@ -17,87 +17,142 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   bool reverseSort = false;
+  bool isSelectionMode = false;
+  bool showFavoritesOnly = false;
+  Set<String> selectedItems = {};
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: !isSelectionMode && !reverseSort && !showFavoritesOnly,
+      onPopInvoked: (didPop) {
+        if (!didPop && (isSelectionMode || reverseSort || showFavoritesOnly)) {
+          setState(() {
+            if (isSelectionMode) {
+              isSelectionMode = false;
+              selectedItems.clear();
+            } else if (showFavoritesOnly) {
+              showFavoritesOnly = false;
+            } else if (reverseSort) {
+              reverseSort = false;
+            }
+          });
+        }
+      },
+      child: Scaffold(
       backgroundColor: Colors.purple.shade50,
       appBar: AppBar(
         centerTitle: true,
         title: const Text('History'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
+        leading: FirebaseAuth.instance.currentUser!.isAnonymous
+            ? IconButton(
+                icon: const Icon(Icons.info),
+                onPressed: () {
+                  PanaraConfirmDialog.show(
+                    context,
+                    title: "Register Now ?",
+                    message:
+                        'You have not register yet. Register now to prevent any loss of your history data if you wish to uninstall this app or change devices. You can also login to your account if you have registered before.',
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    onTapCancel: () {
+                      Navigator.pop(context);
+                    },
+                    onTapConfirm: () {
+                      if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+                        FirebaseAuth.instance.signOut();
+                        FirebaseAuth.instance.signInAnonymously();
+                      }
+                      Navigator.pop(context);
+                      Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Register()))
+                          .then((value) {
+                        setState(() {});
+                      });
+                    },
+                    panaraDialogType: PanaraDialogType.normal,
+                    barrierDismissible: false,
+                  );
+                })
+            : IconButton(
+                icon: const Icon(Icons.info),
+                onPressed: () {
+                  PanaraConfirmDialog.show(
+                    context,
+                    title: "Logout Now ?",
+                    message:
+                        'Your history data are bind with your account. You have to logout in order to login to a different account or register a new account',
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    onTapCancel: () {
+                      Navigator.pop(context);
+                    },
+                    onTapConfirm: () {
+                      if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+                        FirebaseAuth.instance.signOut();
+                        FirebaseAuth.instance.signInAnonymously();
+                      }
+                      Navigator.pop(context);
+                      Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Register()))
+                          .then((value) {
+                        setState(() {});
+                      });
+                    },
+                    panaraDialogType: PanaraDialogType.normal,
+                    barrierDismissible: false,
+                  );
+                }),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.sort),
-            onPressed: () {
-              setState(() {
-                reverseSort = !reverseSort;
-              });
-            },
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Transform.translate(
+                offset: const Offset(24, 0),
+                child: IconButton(
+                  icon: Transform.flip(
+                    flipY: reverseSort,
+                    child: const Icon(Icons.sort),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      reverseSort = !reverseSort;
+                    });
+                  },
+                ),
+              ),
+              Transform.translate(
+                offset: const Offset(12, 0),
+                child: IconButton(
+                  icon: Icon(
+                    showFavoritesOnly ? Icons.star : Icons.star_outline,
+                    color: showFavoritesOnly ? Colors.amber : Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      showFavoritesOnly = !showFavoritesOnly;
+                    });
+                  },
+                ),
+              ),
+              IconButton(
+                icon: Icon(isSelectionMode ? Icons.delete_outline : Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    isSelectionMode = !isSelectionMode;
+                    if (!isSelectionMode) {
+                      selectedItems.clear();
+                    }
+                  });
+                },
+              ),
+            ],
           ),
-          FirebaseAuth.instance.currentUser!.isAnonymous
-              ? IconButton(
-                  icon: const Icon(Icons.info),
-                  onPressed: () {
-                    PanaraConfirmDialog.show(
-                      context,
-                      title: "Register Now ?",
-                      message:
-                          'You have not register yet. Register now to prevent any loss of your history data if you wish to uninstall this app or change devices. You can also login to your account if you have registered before.',
-                      confirmButtonText: "Yes",
-                      cancelButtonText: "No",
-                      onTapCancel: () {
-                        Navigator.pop(context);
-                      },
-                      onTapConfirm: () {
-                        if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
-                          FirebaseAuth.instance.signOut();
-                          FirebaseAuth.instance.signInAnonymously();
-                        }
-                        Navigator.pop(context);
-                        Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Register()))
-                            .then((value) {
-                          setState(() {});
-                        });
-                      },
-                      panaraDialogType: PanaraDialogType.normal,
-                      barrierDismissible: false,
-                    );
-                  })
-              : IconButton(
-                  icon: const Icon(Icons.info),
-                  onPressed: () {
-                    PanaraConfirmDialog.show(
-                      context,
-                      title: "Logout Now ?",
-                      message:
-                          'Your history data are bind with your account. You have to logout in order to login to a different account or register a new account',
-                      confirmButtonText: "Yes",
-                      cancelButtonText: "No",
-                      onTapCancel: () {
-                        Navigator.pop(context);
-                      },
-                      onTapConfirm: () {
-                        if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
-                          FirebaseAuth.instance.signOut();
-                          FirebaseAuth.instance.signInAnonymously();
-                        }
-                        Navigator.pop(context);
-                        Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Register()))
-                            .then((value) {
-                          setState(() {});
-                        });
-                      },
-                      panaraDialogType: PanaraDialogType.normal,
-                      barrierDismissible: false,
-                    );
-                  })
         ],
       ),
       body: StreamBuilder<List<History>>(
@@ -105,20 +160,50 @@ class _HistoryScreenState extends State<HistoryScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<History> users = snapshot.data!;
-              users.sort((a, b) {
-                DateTime adate = DateTime.parse(a.date.toString());
-                DateTime bdate = DateTime.parse(b.date.toString());
-                return reverseSort
-                    ? -bdate.compareTo(adate)
-                    : -adate.compareTo(bdate);
-              });
-              return ListView(
-                children: [
-                  for (int x = 0; x < users.length; x++)
-                    users[x].type == "Scan QR"
-                        ? buildScanQR(users[x])
-                        : buildScanQR(users[x])
-                ],
+              
+              // Filter for favorites if needed
+              if (showFavoritesOnly) {
+                users = users.where((item) => item.isFavorite).toList();
+              }
+              
+              // Group items by date (day)
+              Map<String, List<History>> groupedByDate = {};
+              for (History item in users) {
+                DateTime date = DateTime.parse(item.date).toLocal();
+                String dateKey = DateFormat('yyyy-MM-dd').format(date);
+                if (!groupedByDate.containsKey(dateKey)) {
+                  groupedByDate[dateKey] = [];
+                }
+                groupedByDate[dateKey]!.add(item);
+              }
+              
+              // Sort each group by time and sort groups by date
+              List<String> sortedDateKeys = groupedByDate.keys.toList();
+              sortedDateKeys.sort((a, b) => reverseSort ? a.compareTo(b) : b.compareTo(a));
+              
+              for (String dateKey in groupedByDate.keys) {
+                groupedByDate[dateKey]!.sort((a, b) {
+                  DateTime adate = DateTime.parse(a.date).toLocal();
+                  DateTime bdate = DateTime.parse(b.date).toLocal();
+                  return reverseSort ? adate.compareTo(bdate) : bdate.compareTo(adate);
+                });
+              }
+              
+              List<Widget> allItems = [];
+              for (int i = 0; i < sortedDateKeys.length; i++) {
+                allItems.add(buildDateHeader(sortedDateKeys[i], isFirst: i == 0));
+                List<History> itemsInGroup = groupedByDate[sortedDateKeys[i]]!;
+                for (int j = 0; j < itemsInGroup.length; j++) {
+                  bool isLastItem = (i == sortedDateKeys.length - 1) && (j == itemsInGroup.length - 1);
+                  allItems.add(buildScanQR(itemsInGroup[j], isLast: isLastItem));
+                }
+              }
+              
+              return RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: ListView(
+                  children: allItems,
+                ),
               );
             } else {
               return Column(
@@ -134,53 +219,153 @@ class _HistoryScreenState extends State<HistoryScreen> {
               );
             }
           }),
+      floatingActionButton: isSelectionMode && selectedItems.isNotEmpty
+          ? FloatingActionButton(
+              backgroundColor: Colors.red,
+              onPressed: () {
+                PanaraConfirmDialog.show(
+                  context,
+                  title: "Delete Selected Items?",
+                  message: 'Are you sure you want to delete ${selectedItems.length} selected item(s)?',
+                  confirmButtonText: "Delete",
+                  cancelButtonText: "Cancel",
+                  onTapCancel: () {
+                    Navigator.pop(context);
+                  },
+                  onTapConfirm: () {
+                    Navigator.pop(context);
+                    bulkDeleteItems();
+                  },
+                  panaraDialogType: PanaraDialogType.error,
+                  barrierDismissible: false,
+                );
+              },
+              child: const Icon(Icons.delete, color: Colors.white),
+            )
+          : null,
+      ),
     );
   }
 
-  Widget buildScanQR(History item) => Padding(
-        padding: EdgeInsets.only(top: 8, left: 8, right: 8),
-        child: Material(
-          elevation: 2,
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
+  Widget buildDateHeader(String dateKey, {bool isFirst = false}) {
+    DateTime date = DateTime.parse(dateKey);
+    DateTime now = DateTime.now();
+    String displayText;
+    
+    if (DateFormat('yyyy-MM-dd').format(date) == DateFormat('yyyy-MM-dd').format(now)) {
+      displayText = '${DateFormat('d MMM yyyy').format(date)} (Today)';
+    } else if (DateFormat('yyyy-MM-dd').format(date) == DateFormat('yyyy-MM-dd').format(now.subtract(const Duration(days: 1)))) {
+      displayText = '${DateFormat('d MMM yyyy').format(date)} (Yesterday)';
+    } else {
+      displayText = DateFormat('d MMM yyyy').format(date);
+    }
+    
+    return Padding(
+      padding: EdgeInsets.only(
+        top: isFirst ? 20 : 28, 
+        left: 16, 
+        right: 16, 
+        bottom: 0
+      ),
+      child: Text(
+        displayText,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  Widget buildScanQR(History item, {bool isLast = false}) => Padding(
+        padding: EdgeInsets.only(
+          top: 8, 
+          left: 8, 
+          right: 8, 
+          bottom: isLast ? 80 : 0
+        ),
+        child: SizedBox(
+          height: 75,
+          child: Material(
+            elevation: 2,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
             decoration: BoxDecoration(
                 color: Colors.green[100],
                 borderRadius: BorderRadius.circular(8)),
             child: ListTile(
-              title: Text(item.type),
+              leading: isSelectionMode
+                  ? Checkbox(
+                      value: selectedItems.contains(item.docID),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            selectedItems.add(item.docID);
+                          } else {
+                            selectedItems.remove(item.docID);
+                          }
+                        });
+                      },
+                    )
+                  : null,
+              title: Text(
+                item.link,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
               subtitle: Text(DateFormat('dd/MM/yyyy')
                   .add_jm()
-                  .format(DateTime.parse(item.date))
+                  .format(DateTime.parse(item.date).toLocal())
                   .toString()),
-              onLongPress: () => PanaraConfirmDialog.show(
-                context,
-                title: "Delete this ?",
-                message: 'Are you sure want to delete this ?',
-                confirmButtonText: "Yes",
-                cancelButtonText: "No",
-                onTapCancel: () {
-                  Navigator.pop(context);
-                },
-                onTapConfirm: () {
-                  Navigator.pop(context);
-                  final deleteUser = FirebaseFirestore.instance
-                      .collection('history')
-                      .doc(item.docID);
-                  deleteUser.delete().then((_) => ScaffoldMessenger.of(context)
-                      ..removeCurrentSnackBar()..showSnackBar(const SnackBar(
-                          backgroundColor: Colors.green,
-                          content: Text('Successfully delete history data'))));
-                },
-                panaraDialogType: PanaraDialogType.error,
-                barrierDismissible: false,
-              ),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      ResultScanQR(result: item.originalLink, onPop: (_) {}))),
+              trailing: isSelectionMode
+                  ? null
+                  : Container(
+                      width: 30,
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () {
+                          updateFavoriteStatus(item.docID, !item.isFavorite);
+                        },
+                        child: Icon(
+                          item.isFavorite ? Icons.star : Icons.star_outline,
+                          color: item.isFavorite ? Colors.amber : Colors.grey,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+              onTap: () {
+                if (isSelectionMode) {
+                  setState(() {
+                    if (selectedItems.contains(item.docID)) {
+                      selectedItems.remove(item.docID);
+                    } else {
+                      selectedItems.add(item.docID);
+                    }
+                  });
+                } else {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          ResultScanQR(result: item.link, onPop: (_) {})));
+                }
+              },
             ),
           ),
         ),
-      );
+      ),
+    );
+
+  Future<void> _onRefresh() async {
+    setState(() {
+      reverseSort = false;
+      showFavoritesOnly = false;
+      isSelectionMode = false;
+      selectedItems.clear();
+    });
+    
+    // Add a small delay for better UX
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 
   Stream<List<History>> readUsers() => FirebaseFirestore.instance
       .collection('history')
@@ -188,6 +373,63 @@ class _HistoryScreenState extends State<HistoryScreen> {
       .snapshots()
       .map((snapshot) =>
           snapshot.docs.map((doc) => History.fromJson(doc.data())).toList());
+
+  Future<void> updateFavoriteStatus(String docID, bool isFavorite) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('history')
+          .doc(docID)
+          .update({'isFavorite': isFavorite});
+      
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(isFavorite 
+              ? 'Added to favorites' 
+              : 'Removed from favorites'),
+        ));
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Failed to update favorite status'),
+        ));
+    }
+  }
+
+  Future<void> bulkDeleteItems() async {
+    try {
+      // Delete all selected items
+      for (String docID in selectedItems) {
+        await FirebaseFirestore.instance
+            .collection('history')
+            .doc(docID)
+            .delete();
+      }
+
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('Successfully deleted ${selectedItems.length} item(s)'),
+        ));
+
+      // Reset selection mode
+      setState(() {
+        selectedItems.clear();
+        isSelectionMode = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Failed to delete some items'),
+        ));
+    }
+  }
 
   Future<bool> launchURL(url) async {
     if (await canLaunchUrl(url)) {

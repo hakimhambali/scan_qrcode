@@ -143,9 +143,8 @@ class _ScanQRState extends State<ScanQR> {
     });
 
     await createScanQRHistory(
-        originalLink: code,
-        newLink: code,
-        date: DateTime.now().toString());
+        link: code,
+        date: DateTime.now().toUtc().toString());
 
     await cameraController.stop();
     
@@ -174,18 +173,16 @@ class _ScanQRState extends State<ScanQR> {
   }
 
   Future<void> createScanQRHistory({
-    required String originalLink, 
-    required String newLink, 
+    required String link, 
     required String date
   }) async {
     final historyUser = FirebaseFirestore.instance.collection('history').doc();
     final json = {
       'docID': historyUser.id,
-      'originalLink': originalLink,
-      'newLink': newLink,
+      'link': link,
       'date': date,
-      'type': "Scan QR",
-      'userID': FirebaseAuth.instance.currentUser!.uid.toString()
+      'userID': FirebaseAuth.instance.currentUser!.uid.toString(),
+      'isFavorite': false
     };
     await historyUser.set(json);
   }
@@ -208,9 +205,8 @@ class _ScanQRState extends State<ScanQR> {
         for (final barcode in barcodes.barcodes) {
           if (barcode.rawValue != null) {
             await createScanQRHistory(
-              originalLink: barcode.rawValue!,
-              newLink: barcode.rawValue!,
-              date: DateTime.now().toString(),
+              link: barcode.rawValue!,
+              date: DateTime.now().toUtc().toString(),
             );
             
             await cameraController.stop();
