@@ -5,6 +5,7 @@ import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:scan_qrcode/screens/forgot_password.dart';
 import 'package:scan_qrcode/screens/login.dart';
 import 'package:scan_qrcode/screens/signingoogle.dart';
+import 'package:scan_qrcode/services/data_merger.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -64,7 +65,7 @@ class _RegisterState extends State<Register> {
                   },
                   decoration: InputDecoration(
                     labelText: 'Enter your email here',
-                    hintText: 'ahmadalbab99@gmail.com',
+                    hintText: 'example@gmail.com',
                     errorText: checkEmail ? null : "Please insert valid email",
                     filled: true,
                     fillColor: Colors.white,
@@ -150,12 +151,27 @@ class _RegisterState extends State<Register> {
                               validatePassword(passwordController.text);
                           setState(() {});
 
+                          // Check if fields are empty before attempting registration
+                          if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
+                            showNotification(context, 'Please fill in both email and password fields to register.');
+                            return;
+                          }
+
+                          // Check if email and password are valid
+                          if (!checkEmail || !checkPassword) {
+                            showNotification(context, 'Please enter a valid email and password. Your email should look like this: example@gmail.com. Your password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character');
+                            return;
+                          }
+
                           try {
                             if (FirebaseAuth
                                 .instance.currentUser!.isAnonymous) {
+                              // Store anonymous user ID before linking
+                              final anonymousUserId = FirebaseAuth.instance.currentUser!.uid;
+                              
                               var credential = EmailAuthProvider.credential(
-                                  email: emailController.text,
-                                  password: passwordController.text);
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim());
                               await FirebaseAuth.instance.currentUser!
                                   .linkWithCredential(credential)
                                   .then((user) {
@@ -163,11 +179,14 @@ class _RegisterState extends State<Register> {
                                   const SnackBar(
                                       backgroundColor: Colors.green,
                                       content: Text(
-                                          'Successfully register using email')),
+                                          'Successfully registered using email')),
                                 );
                                 Navigator.pop(context);
                                 return user;
                               });
+                              
+                              // Clean up any remaining anonymous data (shouldn't be needed for linking, but just in case)
+                              await DataMerger.deleteAnonymousAccount(anonymousUserId);
                             } else {
                               PanaraConfirmDialog.show(
                                 context,
@@ -188,13 +207,12 @@ class _RegisterState extends State<Register> {
                               );
                             }
                           } on FirebaseAuthException catch (e) {
-                            showNotification(context, e.message.toString());
+                            String userFriendlyMessage = getFirebaseErrorMessage(e.code);
+                            showNotification(context, userFriendlyMessage);
                           } catch (e) {
-                            ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
-                              const SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text('Invalid Register')),
-                            );
+                            String errorMessage = e.toString();
+                            String userFriendlyMessage = getFirebaseErrorMessage(errorMessage);
+                            showNotification(context, userFriendlyMessage);
                           }
                         },
                         child: StreamBuilder<User?>(
@@ -275,6 +293,34 @@ class _RegisterState extends State<Register> {
   void showNotification(BuildContext context, String message) {
     ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(SnackBar(
         backgroundColor: Colors.red, content: Text(message.toString())));
+  }
+
+  String getFirebaseErrorMessage(String errorCode) {
+    switch (errorCode) {
+      case 'weak-password':
+        return 'Password is too weak. Please use a stronger password with at least 8 characters including uppercase, lowercase, numbers and special characters.';
+      case 'email-already-in-use':
+        return 'This email is already registered. Please use a different email or try logging in.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'operation-not-allowed':
+        return 'Registration is currently disabled. Please contact support.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please wait a moment and try again.';
+      case 'user-disabled':
+        return 'This account has been disabled. Please contact support.';
+      case 'credential-already-in-use':
+        return 'This email is already linked to another account.';
+      case 'provider-already-linked':
+        return 'This email is already linked to your account.';
+      case 'invalid-credential':
+        return 'The provided credentials are invalid. Please check your email and password.';
+      default:
+        if (errorCode.contains('linkWithCredential') || errorCode.contains('FirebaseAuth')) {
+          return 'Please fill in both email and password fields to register.';
+        }
+        return 'Registration failed. Please check your email and password and try again.';
+    }
   }
 
   bool validateEmail(String email) {

@@ -42,7 +42,9 @@ This is a Flutter QR code scanning application that allows users to scan QR code
 - Anonymous authentication is enabled by default
 - Scan history is stored in Firestore under 'history' collection
 - Users can optionally register to persist data across devices
-- Each scan history entry includes: docID, originalLink, newLink, date, type, userID
+- Each scan history entry includes: docID, link, date, userID, isFavorite
+- **Data Merging**: When users transition from anonymous to permanent accounts, their history data is automatically merged
+- **Account Cleanup**: Anonymous data is cleaned up after successful authentication transitions
 
 ### Scanning Features
 - **Camera scanning**: Real-time QR code detection with torch and camera switching
@@ -51,6 +53,8 @@ This is a Flutter QR code scanning application that allows users to scan QR code
 - **Top controls**: Camera controls (torch, switch, gallery) positioned at the top below notch
 - **History persistence**: All scans are automatically saved to Firebase
 - **Result handling**: Scanned codes are displayed with sharing options
+- **Favorites system**: Users can mark history items as favorites with enhanced tap area
+- **Empty states**: User-friendly messages when no history or favorites exist
 
 ## File Organization
 
@@ -60,11 +64,14 @@ lib/
 ├── navigation_wrapper.dart # Central navigation controller with bottom nav bar
 ├── screens/              # All UI screens
 │   ├── scan_qr.dart      # QR scanning screen with camera overlay and top controls
-│   ├── history_screen.dart # Scan history display
+│   ├── history_screen.dart # Scan history display with favorites and empty states
 │   ├── result_scan_qr.dart # QR scan results
-│   ├── login.dart        # User login
-│   ├── register.dart     # User registration
+│   ├── login.dart        # User login with data merging support
+│   ├── register.dart     # User registration with improved error handling
+│   ├── signingoogle.dart # Google authentication with data merging
 │   └── blank_screen.dart # Utility screen
+├── services/             # Business logic services
+│   └── data_merger.dart  # Handles anonymous to permanent account data transitions
 ├── model/
 │   └── user.dart         # User and history data models
 ├── provider/
@@ -81,6 +88,12 @@ lib/
 - Firebase is initialized in main() before running the app
 - Anonymous authentication happens automatically on first launch
 - Firestore security rules should allow read/write for authenticated users
+
+### Authentication & Data Management
+- **DataMerger Service**: Handles seamless data transitions between anonymous and permanent accounts
+- **Error Handling**: User-friendly error messages replace technical Firebase errors
+- **Account Lifecycle**: Anonymous accounts are cleaned up after successful permanent authentication
+- **Data Preservation**: All anonymous history is merged to permanent accounts during sign-in
 
 ### Scanner Implementation
 - Uses `MobileScannerController` for camera operations

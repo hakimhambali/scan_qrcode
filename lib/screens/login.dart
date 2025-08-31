@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:scan_qrcode/screens/forgot_password.dart';
 import 'package:scan_qrcode/screens/signingoogle.dart';
+import 'package:scan_qrcode/services/data_merger.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -63,7 +64,7 @@ class _LoginState extends State<Login> {
                   },
                   decoration: InputDecoration(
                     labelText: 'Enter your email here',
-                    hintText: 'ahmadalbab99@gmail.com',
+                    hintText: 'example@gmail.com',
                     errorText: checkEmail ? null : "Please insert valid email",
                     filled: true,
                     fillColor: Colors.white,
@@ -149,21 +150,92 @@ class _LoginState extends State<Login> {
                               validatePassword(passwordController.text);
                           setState(() {});
 
+                          // Check if fields are empty before attempting login
+                          if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
+                            showNotification(context, 'Please fill in both email and password fields to login.');
+                            return;
+                          }
+
+                          // Check if email and password are valid
+                          if (!checkEmail || !checkPassword) {
+                            showNotification(context, 'Please enter a valid email and password. Your email should look like this: example@gmail.com. Your password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character');
+                            return;
+                          }
+
                           try {
                             if (FirebaseAuth
                                 .instance.currentUser!.isAnonymous) {
-                              await FirebaseAuth.instance
-                                  .signInWithEmailAndPassword(
-                                      email: emailController.text,
-                                      password: passwordController.text);
-                              ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
-                                const SnackBar(
-                                    backgroundColor: Colors.green,
-                                    content:
-                                        Text('Successfully login using email')),
-                              );
-                              Navigator.of(context)
-                                  .popUntil((route) => route.isFirst);
+                              
+                              // Store anonymous user info before signing in
+                              final anonymousUserId = FirebaseAuth.instance.currentUser!.uid;
+                              final anonymousHistoryCount = await DataMerger.getAnonymousHistoryCount();
+                              
+                              // Show loading dialog if we have data to merge
+                              if (anonymousHistoryCount > 0) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CircularProgressIndicator(),
+                                        SizedBox(height: 16),
+                                        Text('Signing in and merging data...', 
+                                             style: TextStyle(color: Colors.white)),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                              
+                              try {
+                                // Sign in to target account
+                                UserCredential credential = await FirebaseAuth.instance
+                                    .signInWithEmailAndPassword(
+                                        email: emailController.text.trim(),
+                                        password: passwordController.text.trim());
+                                
+                                final targetUserId = credential.user!.uid;
+                                
+                                // Merge anonymous data if exists
+                                int mergedCount = 0;
+                                if (anonymousHistoryCount > 0) {
+                                  mergedCount = await DataMerger.mergeAnonymousDataToExistingAccount(anonymousUserId, targetUserId);
+                                }
+                                
+                                // Clean up anonymous account data
+                                await DataMerger.deleteAnonymousAccount(anonymousUserId);
+                                
+                                // Close loading dialog if shown
+                                if (anonymousHistoryCount > 0 && Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
+                                
+                                String message;
+                                if (mergedCount > 0) {
+                                  message = 'Successfully logged in and merged $mergedCount new history items';
+                                } else if (anonymousHistoryCount > 0) {
+                                  message = 'Successfully logged in. All your history items were already in this account';
+                                } else {
+                                  message = 'Successfully logged in using email';
+                                }
+                                
+                                ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
+                                  SnackBar(
+                                      backgroundColor: Colors.green,
+                                      content: Text(message)),
+                                );
+                                Navigator.of(context)
+                                    .popUntil((route) => route.isFirst);
+                                    
+                              } catch (e) {
+                                // Close loading dialog
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
+                                rethrow;
+                              }
                             } else {
                               PanaraConfirmDialog.show(
                                 context,
@@ -184,13 +256,12 @@ class _LoginState extends State<Login> {
                               );
                             }
                           } on FirebaseAuthException catch (e) {
-                            showNotification(context, e.message.toString());
+                            String userFriendlyMessage = getFirebaseErrorMessage(e.code);
+                            showNotification(context, userFriendlyMessage);
                           } catch (e) {
-                            ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
-                              const SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text('Invalid Login')),
-                            );
+                            String errorMessage = e.toString();
+                            String userFriendlyMessage = getFirebaseErrorMessage(errorMessage);
+                            showNotification(context, userFriendlyMessage);
                           }
                         },
                         child: StreamBuilder<User?>(
@@ -268,6 +339,32 @@ class _LoginState extends State<Login> {
   void showNotification(BuildContext context, String message) {
     ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(SnackBar(
         backgroundColor: Colors.red, content: Text(message.toString())));
+  }
+
+  String getFirebaseErrorMessage(String errorCode) {
+    switch (errorCode) {
+      case 'user-not-found':
+        return 'No account found with this email. Please check your email or create a new account.';
+      case 'wrong-password':
+        return 'Incorrect password. Please check your password and try again.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'user-disabled':
+        return 'This account has been disabled. Please contact support.';
+      case 'too-many-requests':
+        return 'Too many login attempts. Please wait a moment and try again.';
+      case 'operation-not-allowed':
+        return 'Email login is currently disabled. Please contact support.';
+      case 'invalid-credential':
+        return 'Invalid email or password. Please check your credentials and try again.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection and try again.';
+      default:
+        if (errorCode.contains('signInWithEmailAndPassword') || errorCode.contains('FirebaseAuth')) {
+          return 'Please fill in both email and password fields to login.';
+        }
+        return 'Login failed. Please check your email and password and try again.';
+    }
   }
 
   bool validateEmail(String email) {

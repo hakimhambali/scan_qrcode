@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
+import 'package:scan_qrcode/services/data_merger.dart';
 
 class SignInGoogle extends StatelessWidget {
   const SignInGoogle({Key? key}) : super(key: key);
@@ -89,9 +90,15 @@ class SignInGoogle extends StatelessWidget {
                               );
                           
                           try {
+                            // Store anonymous user ID before linking
+                            final anonymousUserId = FirebaseAuth.instance.currentUser!.uid;
+                            
                             // Try to link with existing anonymous account
                             await FirebaseAuth.instance.currentUser!
                                 .linkWithCredential(credential);
+                            
+                            // Clean up any remaining anonymous data (shouldn't be needed for linking, but just in case)
+                            await DataMerger.deleteAnonymousAccount(anonymousUserId);
                             
                             ScaffoldMessenger.of(context)
                               ..removeCurrentSnackBar()
@@ -106,23 +113,63 @@ class SignInGoogle extends StatelessWidget {
                             Navigator.of(context)
                                 .popUntil((route) => route.isFirst);
                           } on FirebaseAuthException catch (e) {
-                            // If linking fails (account already exists), sign in instead
+                            // If linking fails (account already exists), handle data merging
                             if (e.code == 'credential-already-in-use' || 
                                 e.code == 'email-already-in-use') {
-                              await FirebaseAuth.instance
-                                  .signInWithCredential(credential);
                               
-                              ScaffoldMessenger.of(context)
-                                ..removeCurrentSnackBar()
-                                ..showSnackBar(
-                                  const SnackBar(
-                                      backgroundColor: Colors.green,
-                                      content: Text(
-                                          'Successfully signed in with Google')),
-                                );
+                              // Store anonymous user info before signing in
+                              final anonymousUserId = FirebaseAuth.instance.currentUser!.uid;
+                              final anonymousHistoryCount = await DataMerger.getAnonymousHistoryCount();
                               
-                              Navigator.of(context)
-                                  .popUntil((route) => route.isFirst);
+                              try {
+                                // Sign in to target account
+                                UserCredential targetCredential = await FirebaseAuth.instance
+                                    .signInWithCredential(credential);
+                                final targetUserId = targetCredential.user!.uid;
+                                
+                                // Merge anonymous data if exists
+                                int mergedCount = 0;
+                                if (anonymousHistoryCount > 0) {
+                                  mergedCount = await DataMerger.mergeAnonymousDataToExistingAccount(anonymousUserId, targetUserId);
+                                }
+                                
+                                // Clean up anonymous account data
+                                await DataMerger.deleteAnonymousAccount(anonymousUserId);
+                                
+                                String message;
+                                if (mergedCount > 0) {
+                                  message = 'Successfully signed in with Google and merged $mergedCount new history items';
+                                } else if (anonymousHistoryCount > 0) {
+                                  message = 'Successfully signed in with Google. All your history items were already in this account';
+                                } else {
+                                  message = 'Successfully signed in with Google';
+                                }
+                                
+                                ScaffoldMessenger.of(context)
+                                  ..removeCurrentSnackBar()
+                                  ..showSnackBar(
+                                    SnackBar(
+                                        backgroundColor: Colors.green,
+                                        content: Text(message)),
+                                  );
+                                
+                                Navigator.of(context)
+                                    .popUntil((route) => route.isFirst);
+                              } catch (mergeError) {
+                                // If merge fails, still try to sign in
+                                await FirebaseAuth.instance.signInWithCredential(credential);
+                                
+                                ScaffoldMessenger.of(context)
+                                  ..removeCurrentSnackBar()
+                                  ..showSnackBar(
+                                    const SnackBar(
+                                        backgroundColor: Colors.orange,
+                                        content: Text('Signed in but could not merge all data')),
+                                  );
+                                
+                                Navigator.of(context)
+                                    .popUntil((route) => route.isFirst);
+                              }
                             } else {
                               throw e;
                             }

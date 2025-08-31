@@ -47,7 +47,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   },
                   decoration: InputDecoration(
                     labelText: 'Enter your email here',
-                    hintText: 'ahmadalbab99@gmail.com',
+                    hintText: 'example@gmail.com',
                     errorText: validate ? null : "Please insert valid email",
                     filled: true,
                     fillColor: Colors.white,

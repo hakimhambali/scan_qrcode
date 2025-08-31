@@ -161,9 +161,93 @@ class _HistoryScreenState extends State<HistoryScreen> {
             if (snapshot.hasData) {
               List<History> users = snapshot.data!;
               
+              // Check if we have no history data at all
+              if (users.isEmpty && !showFavoritesOnly) {
+                return RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'You have no history data yet',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Start scanning QR codes to build your history',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+              
               // Filter for favorites if needed
               if (showFavoritesOnly) {
                 users = users.where((item) => item.isFavorite).toList();
+                
+                // Show message if no favorites found
+                if (users.isEmpty) {
+                  return RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.star_outline,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'You have no favourited history yet',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap the star icon on any history item to add it to favorites',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
               }
               
               // Group items by date (day)
@@ -206,17 +290,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               );
             } else {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'You may not have any history data yet',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontStyle: FontStyle.italic, fontSize: 17),
-                  ),
-                  const Center(child: CircularProgressIndicator()),
-                ],
-              );
+              return const Center(child: CircularProgressIndicator());
             }
           }),
       floatingActionButton: isSelectionMode && selectedItems.isNotEmpty
@@ -314,7 +388,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
               ),
-              subtitle: Text(DateFormat('dd/MM/yyyy')
+              subtitle: Text(DateFormat('dd MMM yyyy')
                   .add_jm()
                   .format(DateTime.parse(item.date).toLocal())
                   .toString()),
@@ -322,15 +396,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ? null
                   : Container(
                       width: 30,
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
+                      height: 75,
+                      alignment: Alignment.center,
+                      child: InkWell(
                         onTap: () {
                           updateFavoriteStatus(item.docID, !item.isFavorite);
                         },
-                        child: Icon(
-                          item.isFavorite ? Icons.star : Icons.star_outline,
-                          color: item.isFavorite ? Colors.amber : Colors.grey,
-                          size: 24,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Container(
+                          width: 30,
+                          height: 75,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            item.isFavorite ? Icons.star : Icons.star_outline,
+                            color: item.isFavorite ? Colors.amber : Colors.grey,
+                            size: 26,
+                          ),
                         ),
                       ),
                     ),
