@@ -29,7 +29,7 @@ class _ResultScanQRState extends State<ResultScanQR> {
         backgroundColor: Colors.purple.shade50,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Link Scanned QR'),
+          title: const Text('Result Scan QR'),
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
         ),
@@ -37,13 +37,17 @@ class _ResultScanQRState extends State<ResultScanQR> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Center(
-                  child: Text(
-                widget.result,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              )),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text(
+                  widget.result,
+                  style:
+                      const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 19,
+                ),
+              ),
               const SizedBox(
                 height: 30,
               ),
