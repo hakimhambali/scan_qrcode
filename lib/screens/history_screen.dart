@@ -44,7 +44,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         title: const Text('History'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        leading: FirebaseAuth.instance.currentUser!.isAnonymous
+        leading: FirebaseAuth.instance.currentUser?.isAnonymous == true
             ? IconButton(
                 icon: const Icon(Icons.info),
                 onPressed: () {
@@ -54,8 +54,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text("Register Now ?"),
-                        content: const Text(
-                            'You have not register yet. Register now to prevent any loss of your history data if you wish to uninstall this app or change devices. You can also login to your account if you have registered before.'),
+                        content: Text(
+                            'Currently signed in as: Anonymous\n\nYou have not registered yet. Register now to prevent losing your history if you uninstall this app or switch devices. You can also log in if you already have an account.'),
                         actions: [
                           TextButton(
                             onPressed: () {
@@ -65,7 +65,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+                              if (FirebaseAuth.instance.currentUser?.isAnonymous == false) {
                                 FirebaseAuth.instance.signOut();
                                 FirebaseAuth.instance.signInAnonymously();
                               }
@@ -94,8 +94,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text("Logout Now ?"),
-                        content: const Text(
-                            'Your history data are bind with your account. You have to logout in order to login to a different account or register a new account'),
+                        content: Text(
+                            'Currently signed in as: ${FirebaseAuth.instance.currentUser?.email ?? FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown'}\n\nYour history data is linked to your account. You must log out before logging in with a different account or registering a new one.'),
                         actions: [
                           TextButton(
                             onPressed: () {
@@ -105,7 +105,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+                              if (FirebaseAuth.instance.currentUser?.isAnonymous == false) {
                                 FirebaseAuth.instance.signOut();
                                 FirebaseAuth.instance.signInAnonymously();
                               }
@@ -488,7 +488,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Stream<List<History>> readUsers() => FirebaseFirestore.instance
       .collection('history')
-      .where('userID', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .where('userID', isEqualTo: FirebaseAuth.instance.currentUser?.uid ?? '')
       .snapshots()
       .map((snapshot) =>
           snapshot.docs.map((doc) => History.fromJson(doc.data())).toList());

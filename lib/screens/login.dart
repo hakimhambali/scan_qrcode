@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:scan_qrcode/screens/forgot_password.dart';
 import 'package:scan_qrcode/screens/signingoogle.dart';
 import 'package:scan_qrcode/services/data_merger.dart';
@@ -31,7 +30,7 @@ class _LoginState extends State<Login> {
               Text(
                 'Scan QR',
                 style:
-                    GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               StreamBuilder<User?>(

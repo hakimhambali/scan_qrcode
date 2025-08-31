@@ -1,0 +1,28 @@
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following _TypeError was thrown building HistoryScreen(dirty, state: _HistoryScreenState#59983):
+Null check operator used on a null value
+
+The relevant error-causing widget was:
+  HistoryScreen HistoryScreen:file:///C:/Code/Mobile/scan_qrcode/lib/navigation_wrapper.dart:19:11
+
+When the exception was thrown, this was the stack:
+#0      _HistoryScreenState.build (package:scan_qrcode/screens/history_screen.dart:47:51)
+#1      StatefulElement.build (package:flutter/src/widgets/framework.dart:5823:27)
+#2      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5715:15)
+#3      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5874:11)
+#4      Element.rebuild (package:flutter/src/widgets/framework.dart:5427:7)
+#5      BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2694:15)
+#6      BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2752:11)
+#7      BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3056:18)
+#8      WidgetsBinding.drawFrame (package:flutter/src/widgets/binding.dart:1240:21)
+#9      RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#10     SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1438:15)
+#11     SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1351:9)
+#12     SchedulerBinding._handleDrawFrame (package:flutter/src/scheduler/binding.dart:1204:5)
+#13     _invoke (dart:ui/hooks.dart:331:13)
+#14     PlatformDispatcher._drawFrame (dart:ui/platform_dispatcher.dart:444:5)
+#15     _drawFrame (dart:ui/hooks.dart:303:31)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+Another exception was thrown: Null check operator used on a null value

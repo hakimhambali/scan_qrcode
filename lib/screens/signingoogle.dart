@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scan_qrcode/services/data_merger.dart';
 
@@ -20,7 +19,7 @@ class SignInGoogle extends StatelessWidget {
             Text(
               'SIGN IN WITH GOOGLE ACCOUNT',
               style:
-                  GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold),
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             StreamBuilder<User?>(
@@ -33,7 +32,7 @@ class SignInGoogle extends StatelessWidget {
                       return const Text("You haven't signed in yet");
                     } else {
                       return Text(
-                        'Signed in as ${FirebaseAuth.instance.currentUser!.displayName} (${FirebaseAuth.instance.currentUser!.email})',
+                        'Signed in as ${FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown'} (${FirebaseAuth.instance.currentUser?.email ?? 'Unknown'})',
                         textAlign: TextAlign.center,
                       );
                     }

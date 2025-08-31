@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({Key? key}) : super(key: key);
@@ -24,12 +23,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               Text(
                 'Scan QR',
                 style:
-                    GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              const Text(
-                "Please check your email after clicking 'Reset Password'. We will send you the link to reset your password",
-                textAlign: TextAlign.center,
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text(
+                  "Please check your email after clicking 'Reset Password'. We will send you the link to reset your password",
+                  textAlign: TextAlign.center,
+                ),
               ),
               Container(
                 margin: const EdgeInsets.fromLTRB(30, 25, 30, 10),
@@ -64,7 +66,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
-                              Colors.purple.shade900)),
+                              Colors.purple.shade900), foregroundColor: MaterialStateProperty.all(
+                              Colors.white)),
                       onPressed: () async {
                         validate = validateEmail(emailController.text);
                         setState(() {});
