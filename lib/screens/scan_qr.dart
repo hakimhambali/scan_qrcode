@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:panara_dialogs/panara_dialogs.dart';
 
 import 'result_scan_qr.dart';
 
@@ -233,16 +232,23 @@ class _ScanQRState extends State<ScanQR> {
       } else {
         if (!mounted) return;
         
-        PanaraInfoDialog.show(
-          context,
-          title: "Unable to detect QR code",
-          message: 'Are you sure you uploaded the correct QR code file? Please try again.',
-          buttonText: "Close",
-          onTapDismiss: () {
-            Navigator.pop(context);
-          },
-          panaraDialogType: PanaraDialogType.error,
+        showDialog(
+          context: context,
           barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Unable to detect QR code"),
+              content: const Text('Are you sure you uploaded the correct QR code file? Please try again.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Close"),
+                ),
+              ],
+            );
+          },
         );
       }
     } catch (e) {
@@ -250,16 +256,23 @@ class _ScanQRState extends State<ScanQR> {
       
       if (!mounted) return;
       
-      PanaraInfoDialog.show(
-        context,
-        title: "Error",
-        message: 'Failed to pick image. Please try again.',
-        buttonText: "Close",
-        onTapDismiss: () {
-          Navigator.pop(context);
-        },
-        panaraDialogType: PanaraDialogType.error,
+      showDialog(
+        context: context,
         barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: const Text('Failed to pick image. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Close"),
+              ),
+            ],
+          );
+        },
       );
     }
   }

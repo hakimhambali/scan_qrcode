@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:scan_qrcode/services/data_merger.dart';
 
 class SignInGoogle extends StatelessWidget {
@@ -202,33 +201,41 @@ class SignInGoogle extends StatelessWidget {
                     } else if (FirebaseAuth.instance.currentUser != null &&
                                !FirebaseAuth.instance.currentUser!.isAnonymous) {
                       // User is signed in, show logout dialog
-                      PanaraConfirmDialog.show(
-                        context,
-                        title: "Logout ?",
-                        message: 'Are you sure want to logout ?',
-                        confirmButtonText: "Yes",
-                        cancelButtonText: "No",
-                        onTapCancel: () {
-                          Navigator.pop(context);
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Logout ?"),
+                            content: const Text('Are you sure want to logout ?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  
+                                  // Sign out from Firebase
+                                  await FirebaseAuth.instance.signOut();
+                                  
+                                  // Sign out from Google
+                                  try {
+                                    await GoogleSignIn().disconnect();
+                                  } catch (e) {
+                                    print('Google disconnect error: $e');
+                                  }
+                          
+                                  // Sign in anonymously again
+                                  await FirebaseAuth.instance.signInAnonymously();
+                                },
+                                child: const Text("Yes"),
+                              ),
+                            ],
+                          );
                         },
-                        onTapConfirm: () async {
-                          Navigator.pop(context);
-                          
-                          // Sign out from Firebase
-                          await FirebaseAuth.instance.signOut();
-                          
-                          // Sign out from Google
-                          try {
-                            await GoogleSignIn().disconnect();
-                          } catch (e) {
-                            print('Google disconnect error: $e');
-                          }
-                          
-                          // Sign in anonymously again
-                          await FirebaseAuth.instance.signInAnonymously();
-                        },
-                        panaraDialogType: PanaraDialogType.error,
-                        barrierDismissible: false,
                       );
                     }
                   },

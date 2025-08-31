@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:scan_qrcode/screens/forgot_password.dart';
 import 'package:scan_qrcode/screens/login.dart';
 import 'package:scan_qrcode/screens/signingoogle.dart';
@@ -188,22 +187,31 @@ class _RegisterState extends State<Register> {
                               // Clean up any remaining anonymous data (shouldn't be needed for linking, but just in case)
                               await DataMerger.deleteAnonymousAccount(anonymousUserId);
                             } else {
-                              PanaraConfirmDialog.show(
-                                context,
-                                title: "Logout ?",
-                                message: 'Are you sure want to logout ?',
-                                confirmButtonText: "Yes",
-                                cancelButtonText: "No",
-                                onTapCancel: () {
-                                  Navigator.pop(context);
-                                },
-                                onTapConfirm: () {
-                                  Navigator.pop(context);
-                                  FirebaseAuth.instance.signOut();
-                                  FirebaseAuth.instance.signInAnonymously();
-                                },
-                                panaraDialogType: PanaraDialogType.error,
+                              showDialog(
+                                context: context,
                                 barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("Logout ?"),
+                                    content: const Text('Are you sure want to logout ?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text("No"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          FirebaseAuth.instance.signOut();
+                                          FirebaseAuth.instance.signInAnonymously();
+                                        },
+                                        child: const Text("Yes"),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
                             }
                           } on FirebaseAuthException catch (e) {

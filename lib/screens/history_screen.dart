@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:scan_qrcode/model/user.dart';
 import 'package:scan_qrcode/screens/result_scan_qr.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -49,63 +48,81 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ? IconButton(
                 icon: const Icon(Icons.info),
                 onPressed: () {
-                  PanaraConfirmDialog.show(
-                    context,
-                    title: "Register Now ?",
-                    message:
-                        'You have not register yet. Register now to prevent any loss of your history data if you wish to uninstall this app or change devices. You can also login to your account if you have registered before.',
-                    confirmButtonText: "Yes",
-                    cancelButtonText: "No",
-                    onTapCancel: () {
-                      Navigator.pop(context);
-                    },
-                    onTapConfirm: () {
-                      if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
-                        FirebaseAuth.instance.signOut();
-                        FirebaseAuth.instance.signInAnonymously();
-                      }
-                      Navigator.pop(context);
-                      Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const Register()))
-                          .then((value) {
-                        setState(() {});
-                      });
-                    },
-                    panaraDialogType: PanaraDialogType.normal,
+                  showDialog(
+                    context: context,
                     barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Register Now ?"),
+                        content: const Text(
+                            'You have not register yet. Register now to prevent any loss of your history data if you wish to uninstall this app or change devices. You can also login to your account if you have registered before.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text("No"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+                                FirebaseAuth.instance.signOut();
+                                FirebaseAuth.instance.signInAnonymously();
+                              }
+                              Navigator.pop(context);
+                              Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const Register()))
+                                  .then((value) {
+                                setState(() {});
+                              });
+                            },
+                            child: const Text("Yes"),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 })
             : IconButton(
                 icon: const Icon(Icons.info),
                 onPressed: () {
-                  PanaraConfirmDialog.show(
-                    context,
-                    title: "Logout Now ?",
-                    message:
-                        'Your history data are bind with your account. You have to logout in order to login to a different account or register a new account',
-                    confirmButtonText: "Yes",
-                    cancelButtonText: "No",
-                    onTapCancel: () {
-                      Navigator.pop(context);
-                    },
-                    onTapConfirm: () {
-                      if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
-                        FirebaseAuth.instance.signOut();
-                        FirebaseAuth.instance.signInAnonymously();
-                      }
-                      Navigator.pop(context);
-                      Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const Register()))
-                          .then((value) {
-                        setState(() {});
-                      });
-                    },
-                    panaraDialogType: PanaraDialogType.normal,
+                  showDialog(
+                    context: context,
                     barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Logout Now ?"),
+                        content: const Text(
+                            'Your history data are bind with your account. You have to logout in order to login to a different account or register a new account'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text("No"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+                                FirebaseAuth.instance.signOut();
+                                FirebaseAuth.instance.signInAnonymously();
+                              }
+                              Navigator.pop(context);
+                              Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const Register()))
+                                  .then((value) {
+                                setState(() {});
+                              });
+                            },
+                            child: const Text("Yes"),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 }),
         actions: <Widget>[
@@ -309,21 +326,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ? FloatingActionButton(
               backgroundColor: Colors.red,
               onPressed: () {
-                PanaraConfirmDialog.show(
-                  context,
-                  title: "Delete Selected Items?",
-                  message: 'Are you sure you want to delete ${selectedItems.length} selected item(s)?',
-                  confirmButtonText: "Delete",
-                  cancelButtonText: "Cancel",
-                  onTapCancel: () {
-                    Navigator.pop(context);
-                  },
-                  onTapConfirm: () {
-                    Navigator.pop(context);
-                    bulkDeleteItems();
-                  },
-                  panaraDialogType: PanaraDialogType.error,
+                showDialog(
+                  context: context,
                   barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Delete Selected Items?"),
+                      content: Text('Are you sure you want to delete ${selectedItems.length} selected item(s)?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            bulkDeleteItems();
+                          },
+                          child: const Text("Delete"),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
               child: const Icon(Icons.delete, color: Colors.white),
