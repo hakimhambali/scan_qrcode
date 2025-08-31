@@ -57,6 +57,25 @@ This document summarizes the development work done on a Flutter QR code scanning
 - Resolved tap conflicts between favorite icon and list item navigation
 - Final implementation uses appropriate padding for comfortable tapping
 
+### 7. Null Safety Crash Fix
+**Problem**: App crashed with "Null check operator used on a null value" when users logged out and used back gesture.
+
+**Solution**:
+- Fixed null check operators in `history_screen.dart` line 47 and related code
+- Changed `FirebaseAuth.instance.currentUser!.isAnonymous` to `FirebaseAuth.instance.currentUser?.isAnonymous == true`
+- Updated Firestore query to use null-safe operators: `currentUser?.uid ?? ''`
+- Fixed display name/email handling in dialogs with proper null safety
+- App now handles null states gracefully during logout/signin transitions
+
+### 8. Dependency Reduction
+**Problem**: App size optimization by removing unnecessary dependencies.
+
+**Solution**:
+- Removed `panara_dialogs` dependency and replaced with Flutter's built-in `AlertDialog`
+- Removed `google_nav_bar` dependency and replaced with Flutter's built-in `BottomNavigationBar`
+- Removed `google_fonts` dependency and replaced with Flutter's built-in `TextStyle`
+- Maintained identical functionality and styling while reducing app size
+
 ## Technical Implementation Details
 
 ### Data Merger Service
@@ -70,8 +89,8 @@ class DataMerger {
 ```
 
 ### Authentication Flow
-1. **Anonymous ’ New Account**: Uses Firebase's `linkWithCredential()` (data preserved automatically)
-2. **Anonymous ’ Existing Account**: 
+1. **Anonymous ï¿½ New Account**: Uses Firebase's `linkWithCredential()` (data preserved automatically)
+2. **Anonymous ï¿½ Existing Account**: 
    - Store anonymous user ID
    - Sign in to existing account
    - Merge anonymous data to existing account
@@ -85,11 +104,15 @@ class DataMerger {
 - Clear instructions for email format and password requirements
 
 ## Files Modified
-- `lib/screens/history_screen.dart` - Empty states, date format, favorite icon
-- `lib/screens/login.dart` - Error handling, data merging
-- `lib/screens/register.dart` - Error handling, cleanup
-- `lib/screens/signingoogle.dart` - Data merging, cleanup
+- `lib/screens/history_screen.dart` - Empty states, date format, favorite icon, null safety fixes
+- `lib/screens/login.dart` - Error handling, data merging, dialog replacements
+- `lib/screens/register.dart` - Error handling, cleanup, dialog replacements
+- `lib/screens/signingoogle.dart` - Data merging, cleanup, dialog replacements
+- `lib/screens/scan_qr.dart` - Dialog replacements
+- `lib/screens/forgot_password.dart` - Font replacements
+- `lib/navigation_wrapper.dart` - Bottom navigation bar replacement
 - `lib/services/data_merger.dart` - New service for data operations
+- `pubspec.yaml` - Dependency removals
 
 ## Key Features Added
 -  User-friendly empty states with helpful guidance
