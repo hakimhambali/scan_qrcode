@@ -58,27 +58,45 @@ class _ResultScanQRState extends State<ResultScanQR> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  IconButton(
-                      icon: Icon(Icons.content_copy, size: 28),
-                      onPressed: () async {
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.lightBlue.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                        icon: Icon(Icons.content_copy, color: AppColors.primaryBlue, size: 28),
+                        onPressed: () async {
                         await FlutterClipboard.copy(widget.result);
                         ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
                           const SnackBar(
                               content: Text('✓   Copied to Clipboard')),
                         );
                       }),
-                  IconButton(
-                      icon: Icon(Icons.search, size: 28),
-                      onPressed: () {
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.lightBlue.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                        icon: Icon(Icons.search, color: AppColors.primaryBlue, size: 28),
+                        onPressed: () {
                         print('widget.result: ${widget.result}');
                         var url = Uri.parse(widget.result);
                         launchURL(url);
                       }),
-                  IconButton(
-                      icon: Icon(Icons.share, size: 28),
-                      onPressed: () {
-                        Share.share(widget.result);
-                      }),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.lightBlue.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                        icon: Icon(Icons.share, color: AppColors.primaryBlue, size: 28),
+                        onPressed: () {
+                          Share.share(widget.result);
+                        }),
+                  ),
                 ],
               ),
               Row(

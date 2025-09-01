@@ -88,6 +88,12 @@ class AppThemes {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.primaryBlue,
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: AppColors.primaryBlue, width: 1),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
     ),
     
