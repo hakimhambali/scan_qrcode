@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../configs/theme_config.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({Key? key}) : super(key: key);
@@ -14,8 +15,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.purple.shade50,
-      body: Center(
+      body: AppWidgets.gradientBackground(
+        gradient: AppColors.lightGradient,
+        child: SafeArea(
+          child: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -61,14 +64,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
+                  AppWidgets.gradientButton(
+                    text: "Reset Password",
                     width: 300,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                              Colors.purple.shade900), foregroundColor: MaterialStateProperty.all(
-                              Colors.white)),
-                      onPressed: () async {
+                    height: 40,
+                    onPressed: () async {
                         validate = validateEmail(emailController.text);
                         setState(() {});
                         try {
@@ -87,12 +87,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           }
                         }
                       },
-                      child: const Text("Reset Password"),
-                    ),
                   ),
                 ],
               ),
             ],
+          ),
+            ),
           ),
         ),
       ),

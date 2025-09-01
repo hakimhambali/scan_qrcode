@@ -6,6 +6,7 @@ import 'package:scan_qrcode/model/user.dart';
 import 'package:scan_qrcode/screens/result_scan_qr.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'register.dart';
+import '../configs/theme_config.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -38,13 +39,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
         }
       },
       child: Scaffold(
-      backgroundColor: Colors.purple.shade50,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('History'),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        leading: FirebaseAuth.instance.currentUser?.isAnonymous == true
+      backgroundColor: AppColors.backgroundColor,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: AppWidgets.gradientBackground(
+          child: AppBar(
+            centerTitle: true,
+            title: const Text('History'),
+            backgroundColor: Colors.transparent,
+            foregroundColor: AppColors.textOnGradient,
+            elevation: 0,
+            leading: FirebaseAuth.instance.currentUser?.isAnonymous == true
             ? IconButton(
                 icon: const Icon(Icons.info),
                 onPressed: () {
@@ -171,6 +176,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ],
           ),
         ],
+          ),
+        ),
       ),
       body: StreamBuilder<List<History>>(
           stream: readUsers(),
@@ -195,7 +202,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               Icon(
                                 Icons.history,
                                 size: 64,
-                                color: Colors.grey[400],
+                                color: AppColors.lightBlue,
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -204,7 +211,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.grey[600],
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -214,7 +221,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontStyle: FontStyle.italic,
-                                  color: Colors.grey[500],
+                                  color: AppColors.textSecondary,
                                 ),
                               ),
                             ],
@@ -247,7 +254,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 Icon(
                                   Icons.star_outline,
                                   size: 64,
-                                  color: Colors.grey[400],
+                                  color: AppColors.lightBlue,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
@@ -256,7 +263,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -266,7 +273,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontStyle: FontStyle.italic,
-                                    color: Colors.grey[500],
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -381,10 +388,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       child: Text(
         displayText,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: AppColors.primaryBlue,
         ),
       ),
     );
@@ -400,12 +407,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: SizedBox(
           height: 75,
           child: Material(
-            elevation: 2,
-            borderRadius: BorderRadius.circular(8),
+            elevation: 0,
+            borderRadius: BorderRadius.circular(12),
             child: Container(
             decoration: BoxDecoration(
-                color: Colors.green[100],
-                borderRadius: BorderRadius.circular(8)),
+                gradient: AppColors.lightGradient,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.lightBlue.withOpacity(0.3),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]),
             child: ListTile(
               leading: isSelectionMode
                   ? Checkbox(
@@ -447,7 +465,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           alignment: Alignment.center,
                           child: Icon(
                             item.isFavorite ? Icons.star : Icons.star_outline,
-                            color: item.isFavorite ? Colors.amber : Colors.grey,
+                            color: item.isFavorite ? Colors.amber : AppColors.primaryBlue,
                             size: 26,
                           ),
                         ),

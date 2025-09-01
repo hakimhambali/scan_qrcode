@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'navigation_wrapper.dart';
-// import 'provider/theme_provider.dart';
+import 'configs/theme_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,12 +10,10 @@ void main() async {
   if (FirebaseAuth.instance.currentUser == null) {
     await FirebaseAuth.instance.signInAnonymously();
   }
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    // themeMode: ThemeMode.system,
-    // theme: MyThemes.lightTheme,
-    // darkTheme: MyThemes.darkTheme,
-    home: NavigationWrapper(initialIndex: 0),
+    theme: AppThemes.blueGradientTheme,
+    home: const NavigationWrapper(initialIndex: 0),
   ));
 }
 

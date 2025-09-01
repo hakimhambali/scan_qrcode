@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scan_qrcode/services/data_merger.dart';
+import '../configs/theme_config.dart';
 
 class SignInGoogle extends StatelessWidget {
   const SignInGoogle({Key? key}) : super(key: key);
@@ -11,8 +12,10 @@ class SignInGoogle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.purple.shade50,
-      body: Center(
+      body: AppWidgets.gradientBackground(
+        gradient: AppColors.lightGradient,
+        child: SafeArea(
+          child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -39,14 +42,10 @@ class SignInGoogle extends StatelessWidget {
                   }
                 }),
             const SizedBox(height: 15),
-            SizedBox(
+            AppWidgets.gradientButton(
+              text: "Login",
               width: 150,
-              child: ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.purple.shade900),
-                      foregroundColor:
-                          MaterialStateProperty.all(Colors.white)),
+              height: 40,
                   onPressed: () async {
                     if (FirebaseAuth.instance.currentUser != null && 
                         FirebaseAuth.instance.currentUser!.isAnonymous) {
@@ -238,29 +237,12 @@ class SignInGoogle extends StatelessWidget {
                       );
                     }
                   },
-                  child: StreamBuilder<User?>(
-                      stream: FirebaseAuth.instance.userChanges(),
-                      builder: (context, snapshot) {
-                        if (FirebaseAuth.instance.currentUser == null) {
-                          return const SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          );
-                        } else {
-                          if (FirebaseAuth.instance.currentUser!.isAnonymous) {
-                            return const Text("Login");
-                          } else {
-                            return const Text("Logout");
-                          }
-                        }
-                      })),
-            )
+            ),
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }

@@ -4,6 +4,7 @@ import 'package:scan_qrcode/screens/forgot_password.dart';
 import 'package:scan_qrcode/screens/login.dart';
 import 'package:scan_qrcode/screens/signingoogle.dart';
 import 'package:scan_qrcode/services/data_merger.dart';
+import '../configs/theme_config.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -21,13 +22,15 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.purple.shade50,
-      body: Center(
+      body: AppWidgets.gradientBackground(
+        gradient: AppColors.lightGradient,
+        child: SafeArea(
+          child: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/logoSplashScreen.png', scale: 3.5),
+              Image.asset('assets/logoNoBg.png', scale: 3.5),
               Text(
                 'Scan QR',
                 style:
@@ -119,8 +122,11 @@ class _RegisterState extends State<Register> {
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                        color: Colors.purple.shade900,
-                        fontWeight: FontWeight.bold),
+                      color: AppColors.primaryBlue,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.primaryBlue,
+                    ),
                   ),
                   onTap: () async {
                     Navigator.push(
@@ -136,14 +142,11 @@ class _RegisterState extends State<Register> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
+                  AppWidgets.gradientButton(
+                    text: "Register",
                     width: 300,
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                              Colors.purple.shade900), foregroundColor: MaterialStateProperty.all(
-                              Colors.white)),
-                        onPressed: () async {
+                    height: 40,
+                    onPressed: () async {
                           checkEmail = validateEmail(emailController.text);
                           checkPassword =
                               validatePassword(passwordController.text);
@@ -222,26 +225,6 @@ class _RegisterState extends State<Register> {
                             showNotification(context, userFriendlyMessage);
                           }
                         },
-                        child: StreamBuilder<User?>(
-                            stream: FirebaseAuth.instance.userChanges(),
-                            builder: (context, snapshot) {
-                              if (FirebaseAuth.instance.currentUser == null) {
-                                return const SizedBox(
-                                  height: 16,
-                                  width: 16,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                );
-                              } else {
-                                if (FirebaseAuth
-                                    .instance.currentUser!.isAnonymous) {
-                                  return const Text("Register");
-                                } else {
-                                  return const Text("Logout");
-                                }
-                              }
-                            })),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -255,8 +238,11 @@ class _RegisterState extends State<Register> {
                           child: Text(
                             'Login',
                             style: TextStyle(
-                                color: Colors.purple.shade900,
-                                fontWeight: FontWeight.bold),
+                              color: AppColors.primaryBlue,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColors.primaryBlue,
+                            ),
                           ),
                           onTap: () async {
                             Navigator.push(
@@ -272,25 +258,22 @@ class _RegisterState extends State<Register> {
                   const SizedBox(
                     height: 10,
                   ),
-                  SizedBox(
+                  AppWidgets.gradientButton(
+                    text: 'Sign In With Google Account',
                     width: 300,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                              Colors.black), foregroundColor: MaterialStateProperty.all(
-                              Colors.white)),
-                      onPressed: () async {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignInGoogle()));
-                      },
-                      child: const Text('Sign In With Google Account'),
-                    ),
+                    height: 40,
+                    onPressed: () async {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignInGoogle()));
+                    },
                   ),
                 ],
               ),
             ],
+          ),
+        ),
           ),
         ),
       ),

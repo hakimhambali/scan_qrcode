@@ -2,6 +2,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../configs/theme_config.dart';
 
 class ResultScanQR extends StatefulWidget {
   final String result;
@@ -26,19 +27,22 @@ class _ResultScanQRState extends State<ResultScanQR> {
         return true;
       },
       child: Scaffold(
-        backgroundColor: Colors.purple.shade50,
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('Result Scan QR'),
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-        ),
-        body: Center(
+        body: AppWidgets.gradientBackground(
+          gradient: AppColors.lightGradient,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+            children: [
+              AppWidgets.gradientAppBar(
+                title: 'Result Scan QR',
+                automaticallyImplyLeading: true,
+                centerTitle: true,
+              ),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Text(
                   widget.result,
                   style:
@@ -55,7 +59,7 @@ class _ResultScanQRState extends State<ResultScanQR> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                      icon: const Icon(Icons.content_copy),
+                      icon: Icon(Icons.content_copy, size: 28),
                       onPressed: () async {
                         await FlutterClipboard.copy(widget.result);
                         ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
@@ -64,14 +68,14 @@ class _ResultScanQRState extends State<ResultScanQR> {
                         );
                       }),
                   IconButton(
-                      icon: const Icon(Icons.search),
+                      icon: Icon(Icons.search, size: 28),
                       onPressed: () {
                         print('widget.result: ${widget.result}');
                         var url = Uri.parse(widget.result);
                         launchURL(url);
                       }),
                   IconButton(
-                      icon: const Icon(Icons.share),
+                      icon: Icon(Icons.share, size: 28),
                       onPressed: () {
                         Share.share(widget.result);
                       }),
@@ -79,11 +83,15 @@ class _ResultScanQRState extends State<ResultScanQR> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  Text('Copy'),
-                  Text('Visit'),
-                  Text('Share'),
+                children: [
+                  Text('Copy', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text('Visit', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text('Share', style: TextStyle(fontWeight: FontWeight.w600)),
                 ],
+              ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
