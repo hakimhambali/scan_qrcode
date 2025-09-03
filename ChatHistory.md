@@ -150,9 +150,95 @@ class DataMerger {
 -  Custom app icon with QR code logo
 -  Streamlined app launch without custom splash screen
 
+### 11. Advanced Time-Based History Grouping
+**Problem**: History was grouped by daily intervals, making it hard to find items from different time periods.
+
+**Solution**:
+- Replaced daily grouping with intelligent time-based categories:
+  - Today, Yesterday, This Week, This Month, This Year
+  - Last Year, Last 2 Years, Last 3 Years, A Long Time Ago
+- Created `getTimePeriodKey()` function to categorize dates appropriately
+- Implemented custom sorting with `getTimePeriodOrder()` for proper chronological display
+- Maintained all existing functionality (sorting, filtering, favorites, selection mode)
+
+### 12. Enhanced Modal State Management
+**Problem**: Sort, filter, and delete modes persisted after users logged out or registered from modal dialogs.
+
+**Solution**:
+- Created `_resetFiltersAndState()` helper method with same behavior as pull-to-refresh
+- Added state reset to both "Register Now ?" and "Logout Now ?" modal "Yes" buttons
+- Ensures clean UI state when users transition between accounts
+- Resets: reverseSort, showFavoritesOnly, isSelectionMode, selectedItems
+
+### 13. Password Reset Error Handling & reCAPTCHA Issues
+**Problem**: Password reset emails weren't being sent due to Firebase reCAPTCHA verification failures. Users received no helpful error messages.
+
+**Solution**:
+- Enhanced error handling with comprehensive Firebase error code mapping
+- Added specific handling for reCAPTCHA-related errors:
+  - `captcha-check-failed`: "Security verification failed. Please try again or use a different device/network."
+  - `missing-recaptcha-token`: "Security verification required. Please try again or contact support if the issue persists."
+- Improved validation: empty email checks, proper email format validation
+- Better success messaging: mentions checking spam folder
+- User-friendly error messages for all common Firebase Auth scenarios
+
+### 14. R8 Code Shrinking and Obfuscation Setup
+**Problem**: Play Store warning about missing deobfuscation files and potential for app size reduction.
+
+**Solution**:
+- Enabled R8 code shrinking and obfuscation in `android/app/build.gradle.kts`:
+  - `isMinifyEnabled = true` for code shrinking
+  - `isShrinkResources = true` for resource optimization
+- Created comprehensive `proguard-rules.pro` with rules for:
+  - Flutter framework protection
+  - Firebase Auth & Firestore compatibility
+  - Mobile Scanner (QR code functionality)
+  - Camera, Image Picker, URL Launcher
+  - Theme management dependencies
+- Automatic generation of deobfuscation mapping files for crash analysis
+- Created documentation (`android/R8_SETUP.md`) for future reference
+
+## Technical Implementation Details
+
+### Time-Based History Grouping
+```dart
+// Located at: lib/screens/history_screen.dart
+String getTimePeriodKey(DateTime date) // Categorizes dates into time periods
+int getTimePeriodOrder(String period)   // Orders categories chronologically
+```
+
+### Enhanced Password Reset
+- Comprehensive error handling for Firebase Auth edge cases
+- reCAPTCHA failure detection and user-friendly messaging
+- Input validation and sanitization (trim whitespace)
+
+### R8 Configuration Benefits
+- Significant app size reduction through unused code removal
+- Code obfuscation for better security
+- Automatic deobfuscation file generation for Play Store
+- Optimized runtime performance
+
+## Files Modified
+- `lib/screens/history_screen.dart` - Time-based grouping, modal state resets
+- `lib/screens/forgot_password.dart` - Enhanced error handling and validation
+- `android/app/build.gradle.kts` - R8 configuration
+- `android/app/proguard-rules.pro` - New ProGuard rules file
+- `android/R8_SETUP.md` - New documentation file
+
+## Key Features Added
+- ✅ Intelligent time-based history categorization (Today, This Week, This Year, etc.)
+- ✅ Automatic UI state reset on account transitions
+- ✅ Robust password reset with reCAPTCHA error handling
+- ✅ R8 code shrinking for reduced app size and better security
+- ✅ Comprehensive crash analysis support with deobfuscation files
+- ✅ Production-ready build optimization
+
 ## Final Status
 All requested features have been implemented and tested. The app now provides:
-- Better user experience with clear messaging
+- Better user experience with clear messaging and intuitive history grouping
 - Reliable data preservation during account transitions
 - Improved accessibility and usability
 - Clean data management without orphaned records
+- Robust error handling for authentication edge cases
+- Optimized build configuration for production deployment
+- Significantly reduced app size through R8 optimization

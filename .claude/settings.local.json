@@ -7,7 +7,8 @@
       "Bash(dart:*)",
       "Bash(grep:*)",
       "Bash(flutter analyze:*)",
-      "Bash(/mnt/c/dev/flutter/bin/flutter analyze)"
+      "Bash(/mnt/c/dev/flutter/bin/flutter analyze)",
+      "Bash(/mnt/c/dev/flutter/bin/flutter clean)"
     ],
     "deny": [],
     "ask": []
