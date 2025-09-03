@@ -83,6 +83,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     FirebaseAuth.instance.signInAnonymously();
                                   }
                                   Navigator.pop(context);
+                                  _resetFiltersAndState();
                                   Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -120,6 +121,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     FirebaseAuth.instance.signInAnonymously();
                                   }
                                   Navigator.pop(context);
+                                  _resetFiltersAndState();
                                   Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -535,15 +537,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
 
   Future<void> _onRefresh() async {
+    _resetFiltersAndState();
+    
+    // Add a small delay for better UX
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  void _resetFiltersAndState() {
     setState(() {
       reverseSort = false;
       showFavoritesOnly = false;
       isSelectionMode = false;
       selectedItems.clear();
     });
-    
-    // Add a small delay for better UX
-    await Future.delayed(const Duration(milliseconds: 500));
   }
 
   Stream<List<History>> readUsers() => FirebaseFirestore.instance
