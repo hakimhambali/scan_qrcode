@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:scan_qrcode/screens/forgot_password.dart';
 import 'package:scan_qrcode/screens/signingoogle.dart';
 import 'package:scan_qrcode/services/data_merger.dart';
 import '../configs/theme_config.dart';
+import '../provider/theme_provider.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -22,30 +24,58 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: AppWidgets.gradientBackground(
-        gradient: AppColors.lightGradient,
+        gradient: context.watch<ThemeProvider>().getLightGradient(context),
         child: SafeArea(
           child: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/logoNoBg.png', scale: 3.5),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                      ? Colors.white.withOpacity(0.9)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Image.asset('assets/logoNoBg.png', scale: 3.5),
+              ),
+              const SizedBox(height: 6),
               Text(
                 'Scan QR',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18, 
+                  fontWeight: FontWeight.bold,
+                  color: context.watch<ThemeProvider>().getTextColor(context),
+                ),
               ),
               const SizedBox(height: 10),
               StreamBuilder<User?>(
                   stream: FirebaseAuth.instance.userChanges(),
                   builder: (context, snapshot) {
                     if (FirebaseAuth.instance.currentUser == null) {
-                      return const Text("You haven't signed in yet");
+                      return Text(
+                        "You haven't signed in yet",
+                        style: TextStyle(
+                          color: context.watch<ThemeProvider>().getTextColor(context),
+                        ),
+                      );
                     } else {
                       if (FirebaseAuth.instance.currentUser!.isAnonymous) {
-                        return const Text("You haven't signed in yet");
+                        return Text(
+                        "You haven't signed in yet",
+                        style: TextStyle(
+                          color: context.watch<ThemeProvider>().getTextColor(context),
+                        ),
+                      );
                       } else {
-                        return Text('SIGNED IN ${snapshot.data?.email}');
+                        return Text(
+                          'SIGNED IN ${snapshot.data?.email}',
+                          style: TextStyle(
+                            color: context.watch<ThemeProvider>().getTextColor(context),
+                          ),
+                        );
                       }
                     }
                   }),
@@ -68,7 +98,9 @@ class _LoginState extends State<Login> {
                     hintText: 'example@gmail.com',
                     errorText: checkEmail ? null : "Please insert valid email",
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                        ? AppColors.darkCardBackground
+                        : Colors.white,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
@@ -97,7 +129,9 @@ class _LoginState extends State<Login> {
                         _passwordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: Theme.of(context).primaryColorDark,
+                        color: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                            ? AppColors.lightBlue
+                            : AppColors.primaryBlue,
                       ),
                       onPressed: () {
                         setState(() {
@@ -108,7 +142,9 @@ class _LoginState extends State<Login> {
                     errorText:
                         checkPassword ? null : "Please insert valid password",
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                        ? AppColors.darkCardBackground
+                        : Colors.white,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
@@ -121,10 +157,14 @@ class _LoginState extends State<Login> {
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                      color: AppColors.primaryBlue,
+                      color: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                          ? AppColors.lightBlue
+                          : AppColors.primaryBlue,
                       fontWeight: FontWeight.w600,
                       decoration: TextDecoration.underline,
-                      decorationColor: AppColors.primaryBlue,
+                      decorationColor: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                          ? AppColors.lightBlue
+                          : AppColors.primaryBlue,
                     ),
                   ),
                   onTap: () async {
@@ -225,7 +265,7 @@ class _LoginState extends State<Login> {
                                 ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
                                   SnackBar(
                                       backgroundColor: Colors.green,
-                                      content: Text(message)),
+                                      content: Text(message, style: const TextStyle(color: Colors.white))),
                                 );
                                 Navigator.of(context)
                                     .popUntil((route) => route.isFirst);
@@ -280,17 +320,26 @@ class _LoginState extends State<Login> {
                     children: [
                       Container(
                           margin: const EdgeInsets.only(top: 10, bottom: 20),
-                          child: const Text("Don't have an account ?  ")),
+                          child: Text(
+                            "Don't have an account ?  ",
+                            style: TextStyle(
+                              color: context.watch<ThemeProvider>().getTextColor(context),
+                            ),
+                          )),
                       Container(
                         margin: const EdgeInsets.only(top: 10, bottom: 20),
                         child: GestureDetector(
                           child: Text(
                             'Register',
                             style: TextStyle(
-                              color: AppColors.primaryBlue,
+                              color: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                                  ? AppColors.lightBlue
+                                  : AppColors.primaryBlue,
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.underline,
-                              decorationColor: AppColors.primaryBlue,
+                              decorationColor: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                                  ? AppColors.lightBlue
+                                  : AppColors.primaryBlue,
                             ),
                           ),
                           onTap: () async {
@@ -300,7 +349,12 @@ class _LoginState extends State<Login> {
                       ),
                     ],
                   ),
-                  const Text("OR"),
+                  Text(
+                    "OR",
+                    style: TextStyle(
+                      color: context.watch<ThemeProvider>().getTextColor(context),
+                    ),
+                  ),
                   const SizedBox(
                     height: 10,
                   ),

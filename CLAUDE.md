@@ -75,7 +75,7 @@ lib/
 ├── model/
 │   └── user.dart         # User and history data models
 ├── provider/
-│   └── theme_provider.dart # Theme management (currently unused)
+│   └── theme_provider.dart # Theme management with light/dark mode support
 ├── blocs/
 │   └── theme.dart        # Theme bloc (currently unused)
 └── configs/
@@ -109,7 +109,14 @@ lib/
 - Direct navigation between screens without redundant code
 - App starts directly with NavigationWrapper (Scan QR tab active by default)
 
+### Theme System
+- **Dark Mode Support**: Complete light/dark theme implementation using Provider pattern
+- **Theme Toggle**: Accessible via moon/sun icon in History screen header
+- **Persistent Storage**: Theme preference saved to SharedPreferences
+- **Theme-Aware Components**: All screens adapt colors, gradients, and styling based on current theme
+- **Consistent Styling**: Proper contrast, readable text, and professional appearance in both modes
+
 ### State Management
-- Uses basic Flutter `setState` for local state
-- No external state management library (BLoC/Provider pattern files exist but unused)
+- Uses basic Flutter `setState` for local state management
+- **Provider Pattern**: Active theme management with `ThemeProvider` and `ChangeNotifier`
 - Firebase streams for real-time history updates

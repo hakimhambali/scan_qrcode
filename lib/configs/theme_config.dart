@@ -30,6 +30,19 @@ class AppColors {
     end: Alignment.bottomCenter,
   );
   
+  // Dark theme gradients
+  static const LinearGradient darkGradientBackground = LinearGradient(
+    colors: [Color(0xFF1A1A1A), Color(0xFF2D2D2D)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+  
+  static const LinearGradient darkLightGradient = LinearGradient(
+    colors: [Color(0xFF2C2C2C), Color(0xFF3A3A3A)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+  
   // New button gradient for better contrast
   static const LinearGradient buttonGradient = LinearGradient(
     colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
@@ -46,10 +59,19 @@ class AppColors {
   static const Color backgroundColor = Color(0xFFF5F5F5);
   static const Color cardBackground = Colors.white;
   static const Color surfaceColor = Color(0xFFFAFAFA);
+  
+  // Dark theme colors
+  static const Color darkBackgroundColor = Color(0xFF121212);
+  static const Color darkCardBackground = Color(0xFF1E1E1E);
+  static const Color darkSurfaceColor = Color(0xFF2C2C2C);
+  static const Color darkNavBarBackground = Color(0xFF1E1E1E);
+  static const Color darkTextPrimary = Color(0xFFE0E0E0);
+  static const Color darkTextSecondary = Color(0xFFB0B0B0);
 }
 
 class AppThemes {
-  static ThemeData get blueGradientTheme => ThemeData(
+  static ThemeData get lightTheme => ThemeData(
+    brightness: Brightness.light,
     primarySwatch: Colors.blue,
     primaryColor: AppColors.primaryBlue,
     scaffoldBackgroundColor: AppColors.backgroundColor,
@@ -129,6 +151,91 @@ class AppThemes {
       foregroundColor: AppColors.textOnGradient,
     ),
   );
+  
+  static ThemeData get darkTheme => ThemeData(
+    brightness: Brightness.dark,
+    primarySwatch: Colors.blue,
+    primaryColor: AppColors.primaryBlue,
+    scaffoldBackgroundColor: AppColors.darkBackgroundColor,
+    
+    // AppBar theme
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      iconTheme: IconThemeData(color: AppColors.textOnGradient),
+      titleTextStyle: TextStyle(
+        color: AppColors.textOnGradient,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    
+    // Card theme
+    cardTheme: CardThemeData(
+      color: AppColors.darkCardBackground,
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    
+    // ElevatedButton theme
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: AppColors.textOnGradient,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 4,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+      ),
+    ),
+    
+    // TextButton theme
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.lightBlue,
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: AppColors.lightBlue, width: 1),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
+    ),
+    
+    // Input decoration theme
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.lightBlue),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.lightBlue),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
+      ),
+      labelStyle: const TextStyle(color: AppColors.darkTextSecondary),
+      hintStyle: const TextStyle(color: AppColors.darkTextSecondary),
+    ),
+    
+    // Bottom navigation bar theme
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: AppColors.darkNavBarBackground,
+      selectedItemColor: AppColors.lightBlue,
+      unselectedItemColor: AppColors.darkTextSecondary,
+      elevation: 8,
+    ),
+    
+    // FloatingActionButton theme
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.accentBlue,
+      foregroundColor: AppColors.textOnGradient,
+    ),
+  );
+  
+  // Backward compatibility
+  static ThemeData get blueGradientTheme => lightTheme;
 }
 
 class AppStyles {

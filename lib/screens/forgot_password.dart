@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../configs/theme_config.dart';
+import '../provider/theme_provider.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({Key? key}) : super(key: key);
@@ -16,7 +18,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: AppWidgets.gradientBackground(
-        gradient: AppColors.lightGradient,
+        gradient: context.watch<ThemeProvider>().getLightGradient(context),
         child: SafeArea(
           child: Center(
         child: SingleChildScrollView(
@@ -25,15 +27,21 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             children: [
               Text(
                 'Scan QR',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18, 
+                  fontWeight: FontWeight.bold,
+                  color: context.watch<ThemeProvider>().getTextColor(context),
+                ),
               ),
               const SizedBox(height: 10),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Text(
                   "Please check your email after clicking 'Reset Password'. We will send you the link to reset your password",
                   textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: context.watch<ThemeProvider>().getTextColor(context),
+                  ),
                 ),
               ),
               Container(
@@ -55,7 +63,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     hintText: 'example@gmail.com',
                     errorText: validate ? null : "Please insert valid email",
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                        ? AppColors.darkCardBackground
+                        : Colors.white,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
@@ -78,7 +88,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             const SnackBar(
                                 backgroundColor: Colors.green,
                                 content: Text(
-                                    'Successfully request to reset password')),
+                                    'Successfully request to reset password',
+                                    style: const TextStyle(color: Colors.white))),
                           );
                           Navigator.pop(context);
                         } on FirebaseAuthException catch (e) {
@@ -112,6 +123,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   void showNotification(BuildContext context, String message) {
     ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(SnackBar(
         backgroundColor: Colors.purple.shade900,
-        content: Text(message.toString())));
+        content: Text(message.toString(), style: const TextStyle(color: Colors.white))));
   }
 }

@@ -3,8 +3,10 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 import 'package:scan_qrcode/services/data_merger.dart';
 import '../configs/theme_config.dart';
+import '../provider/theme_provider.dart';
 
 class SignInGoogle extends StatelessWidget {
   const SignInGoogle({Key? key}) : super(key: key);
@@ -13,7 +15,7 @@ class SignInGoogle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: AppWidgets.gradientBackground(
-        gradient: AppColors.lightGradient,
+        gradient: context.watch<ThemeProvider>().getLightGradient(context),
         child: SafeArea(
           child: Center(
         child: Column(
@@ -21,22 +23,38 @@ class SignInGoogle extends StatelessWidget {
           children: [
             Text(
               'SIGN IN WITH GOOGLE ACCOUNT',
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18, 
+                fontWeight: FontWeight.bold,
+                color: context.watch<ThemeProvider>().getTextColor(context),
+              ),
             ),
             const SizedBox(height: 10),
             StreamBuilder<User?>(
                 stream: FirebaseAuth.instance.userChanges(),
                 builder: (context, snapshot) {
                   if (FirebaseAuth.instance.currentUser == null) {
-                    return const Text("You haven't signed in yet");
+                    return Text(
+                      "You haven't signed in yet",
+                      style: TextStyle(
+                        color: context.watch<ThemeProvider>().getTextColor(context),
+                      ),
+                    );
                   } else {
                     if (FirebaseAuth.instance.currentUser!.isAnonymous) {
-                      return const Text("You haven't signed in yet");
+                      return Text(
+                      "You haven't signed in yet",
+                      style: TextStyle(
+                        color: context.watch<ThemeProvider>().getTextColor(context),
+                      ),
+                    );
                     } else {
                       return Text(
                         'Signed in as ${FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown'} (${FirebaseAuth.instance.currentUser?.email ?? 'Unknown'})',
                         textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: context.watch<ThemeProvider>().getTextColor(context),
+                        ),
                       );
                     }
                   }
@@ -100,10 +118,10 @@ class SignInGoogle extends StatelessWidget {
                             ScaffoldMessenger.of(context)
                               ..removeCurrentSnackBar()
                               ..showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                     backgroundColor: Colors.green,
                                     content: Text(
-                                        'Successfully linked Google account')),
+                                        'Successfully linked Google account',                                        style: const TextStyle(color: Colors.white))),
                               );
                             
                             // Navigate back to first route
@@ -147,7 +165,7 @@ class SignInGoogle extends StatelessWidget {
                                   ..showSnackBar(
                                     SnackBar(
                                         backgroundColor: Colors.green,
-                                        content: Text(message)),
+                                        content: Text(message, style: const TextStyle(color: Colors.white))),
                                   );
                                 
                                 Navigator.of(context)
@@ -159,9 +177,9 @@ class SignInGoogle extends StatelessWidget {
                                 ScaffoldMessenger.of(context)
                                   ..removeCurrentSnackBar()
                                   ..showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                         backgroundColor: Colors.orange,
-                                        content: Text('Signed in but could not merge all data')),
+                                        content: Text('Signed in but could not merge all data', style: const TextStyle(color: Colors.white))),
                                   );
                                 
                                 Navigator.of(context)
@@ -178,7 +196,7 @@ class SignInGoogle extends StatelessWidget {
                             ..showSnackBar(
                               const SnackBar(
                                   backgroundColor: Colors.orange,
-                                  content: Text('Sign in cancelled')),
+                                  content: Text('Sign in cancelled', style: const TextStyle(color: Colors.white))),
                             );
                         }
                       } catch (e) {
@@ -192,7 +210,7 @@ class SignInGoogle extends StatelessWidget {
                           ..showSnackBar(
                             SnackBar(
                                 backgroundColor: Colors.red,
-                                content: Text('Sign in failed: ${e.toString()}')),
+                                content: Text('Sign in failed: ${e.toString()}', style: const TextStyle(color: Colors.white))),
                           );
                         log('Sign in error: $e');
                       }

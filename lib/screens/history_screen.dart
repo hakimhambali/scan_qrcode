@@ -7,6 +7,8 @@ import 'package:scan_qrcode/screens/result_scan_qr.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'register.dart';
 import '../configs/theme_config.dart';
+import '../provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -39,7 +41,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.watch<ThemeProvider>().themeMode == ThemeMode.dark 
+          ? AppColors.darkBackgroundColor 
+          : AppColors.backgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AppWidgets.gradientBackground(
@@ -49,87 +53,107 @@ class _HistoryScreenState extends State<HistoryScreen> {
             backgroundColor: Colors.transparent,
             foregroundColor: AppColors.textOnGradient,
             elevation: 0,
-            leading: FirebaseAuth.instance.currentUser?.isAnonymous == true
-            ? IconButton(
-                icon: const Icon(Icons.info),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text("Register Now ?"),
-                        content: Text(
-                            'Currently signed in as: Anonymous\n\nYou have not registered yet. Register now to prevent losing your history if you uninstall this app or switch devices. You can also log in if you already have an account.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text("No"),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              if (FirebaseAuth.instance.currentUser?.isAnonymous == false) {
-                                FirebaseAuth.instance.signOut();
-                                FirebaseAuth.instance.signInAnonymously();
-                              }
-                              Navigator.pop(context);
-                              Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const Register()))
-                                  .then((value) {
-                                setState(() {});
-                              });
-                            },
-                            child: const Text("Yes"),
-                          ),
-                        ],
+            leadingWidth: 120,
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.info),
+                  onPressed: () {
+                    if (FirebaseAuth.instance.currentUser?.isAnonymous == true) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Register Now ?"),
+                            content: Text(
+                                'Currently signed in as: Anonymous\n\nYou have not registered yet. Register now to prevent losing your history if you uninstall this app or switch devices. You can also log in if you already have an account.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  if (FirebaseAuth.instance.currentUser?.isAnonymous == false) {
+                                    FirebaseAuth.instance.signOut();
+                                    FirebaseAuth.instance.signInAnonymously();
+                                  }
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => const Register()))
+                                      .then((value) {
+                                    setState(() {});
+                                  });
+                                },
+                                child: const Text("Yes"),
+                              ),
+                            ],
+                          );
+                        },
                       );
-                    },
-                  );
-                })
-            : IconButton(
-                icon: const Icon(Icons.info),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text("Logout Now ?"),
-                        content: Text(
-                            'Currently signed in as: ${FirebaseAuth.instance.currentUser?.email ?? FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown'}\n\nYour history data is linked to your account. You must log out before logging in with a different account or registering a new one.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text("No"),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              if (FirebaseAuth.instance.currentUser?.isAnonymous == false) {
-                                FirebaseAuth.instance.signOut();
-                                FirebaseAuth.instance.signInAnonymously();
-                              }
-                              Navigator.pop(context);
-                              Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const Register()))
-                                  .then((value) {
-                                setState(() {});
-                              });
-                            },
-                            child: const Text("Yes"),
-                          ),
-                        ],
+                    } else {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Logout Now ?"),
+                            content: Text(
+                                'Currently signed in as: ${FirebaseAuth.instance.currentUser?.email ?? FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown'}\n\nYour history data is linked to your account. You must log out before logging in with a different account or registering a new one.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  if (FirebaseAuth.instance.currentUser?.isAnonymous == false) {
+                                    FirebaseAuth.instance.signOut();
+                                    FirebaseAuth.instance.signInAnonymously();
+                                  }
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => const Register()))
+                                      .then((value) {
+                                    setState(() {});
+                                  });
+                                },
+                                child: const Text("Yes"),
+                              ),
+                            ],
+                          );
+                        },
                       );
-                    },
-                  );
-                }),
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: Icon(
+                    context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                        ? Icons.dark_mode
+                        : Icons.light_mode,
+                  ),
+                  onPressed: () {
+                    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+                    themeProvider.setThemeMode(
+                      themeProvider.themeMode == ThemeMode.dark
+                          ? ThemeMode.light
+                          : ThemeMode.dark,
+                    );
+                  },
+                ),
+              ],
+            ),
         actions: <Widget>[
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -192,7 +216,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Container(
-                      height: MediaQuery.of(context).size.height - 200,
+                      height: MediaQuery.of(context).size.height - 
+                             MediaQuery.of(context).padding.top - 
+                             kToolbarHeight - 
+                             kBottomNavigationBarHeight,
+                      decoration: BoxDecoration(
+                        gradient: context.watch<ThemeProvider>().getLightGradient(context),
+                      ),
                       child: Center(
                         child: Padding(
                           padding: const EdgeInsets.all(32.0),
@@ -211,7 +241,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.textPrimary,
+                                  color: context.watch<ThemeProvider>().getTextColor(context),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -221,7 +251,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontStyle: FontStyle.italic,
-                                  color: AppColors.textSecondary,
+                                  color: context.watch<ThemeProvider>().getTextSecondaryColor(context),
                                 ),
                               ),
                             ],
@@ -244,7 +274,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: Container(
-                        height: MediaQuery.of(context).size.height - 200,
+                        height: MediaQuery.of(context).size.height - 
+                             MediaQuery.of(context).padding.top - 
+                             kToolbarHeight - 
+                             kBottomNavigationBarHeight,
+                        decoration: BoxDecoration(
+                          gradient: context.watch<ThemeProvider>().getLightGradient(context),
+                        ),
                         child: Center(
                           child: Padding(
                             padding: const EdgeInsets.all(32.0),
@@ -254,7 +290,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 Icon(
                                   Icons.star_outline,
                                   size: 64,
-                                  color: AppColors.lightBlue,
+                                  color: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                                      ? AppColors.lightBlue
+                                      : AppColors.lightBlue,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
@@ -263,7 +301,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
-                                    color: AppColors.textPrimary,
+                                    color: context.watch<ThemeProvider>().getTextColor(context),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -273,7 +311,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontStyle: FontStyle.italic,
-                                    color: AppColors.textSecondary,
+                                    color: context.watch<ThemeProvider>().getTextSecondaryColor(context),
                                   ),
                                 ),
                               ],
@@ -391,7 +429,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.bold,
-          color: AppColors.primaryBlue,
+          color: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+              ? AppColors.lightBlue
+              : AppColors.primaryBlue,
         ),
       ),
     );
@@ -411,10 +451,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
             borderRadius: BorderRadius.circular(12),
             child: Container(
             decoration: BoxDecoration(
-                gradient: AppColors.lightGradient,
+                gradient: context.watch<ThemeProvider>().getLightGradient(context),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppColors.lightBlue.withOpacity(0.3),
+                  color: context.watch<ThemeProvider>().themeMode == ThemeMode.dark
+                      ? AppColors.lightBlue.withOpacity(0.2)
+                      : AppColors.lightBlue.withOpacity(0.3),
                   width: 1,
                 ),
                 boxShadow: [
@@ -443,11 +485,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 item.link,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
+                style: TextStyle(
+                  color: context.watch<ThemeProvider>().getTextColor(context),
+                ),
               ),
-              subtitle: Text(DateFormat('dd MMM yyyy')
-                  .add_jm()
-                  .format(DateTime.parse(item.date).toLocal())
-                  .toString()),
+              subtitle: Text(
+                DateFormat('dd MMM yyyy')
+                    .add_jm()
+                    .format(DateTime.parse(item.date).toLocal())
+                    .toString(),
+                style: TextStyle(
+                  color: context.watch<ThemeProvider>().getTextSecondaryColor(context),
+                ),
+              ),
               trailing: isSelectionMode
                   ? null
                   : Container(
@@ -524,14 +574,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
           backgroundColor: Colors.green,
           content: Text(isFavorite 
               ? 'Added to favorites' 
-              : 'Removed from favorites'),
+              : 'Removed from favorites',
+              style: const TextStyle(color: Colors.white)),
         ));
     } catch (e) {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(const SnackBar(
           backgroundColor: Colors.red,
-          content: Text('Failed to update favorite status'),
+          content: Text('Failed to update favorite status', style: const TextStyle(color: Colors.white)),
         ));
     }
   }
@@ -550,7 +601,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ..removeCurrentSnackBar()
         ..showSnackBar(SnackBar(
           backgroundColor: Colors.green,
-          content: Text('Successfully deleted ${selectedItems.length} item(s)'),
+          content: Text('Successfully deleted ${selectedItems.length} item(s)', style: const TextStyle(color: Colors.white)),
         ));
 
       // Reset selection mode
@@ -563,7 +614,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ..removeCurrentSnackBar()
         ..showSnackBar(const SnackBar(
           backgroundColor: Colors.red,
-          content: Text('Failed to delete some items'),
+          content: Text('Failed to delete some items', style: const TextStyle(color: Colors.white)),
         ));
     }
   }
@@ -578,4 +629,5 @@ class _HistoryScreenState extends State<HistoryScreen> {
       return false;
     }
   }
+
 }

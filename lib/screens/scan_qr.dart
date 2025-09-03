@@ -165,9 +165,9 @@ class _ScanQRState extends State<ScanQR> {
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
+        SnackBar(
             backgroundColor: Colors.green,
-            content: Text('Successfully Scan QR')),
+            content: Text('Successfully Scan QR', style: const TextStyle(color: Colors.white))),
       );
   }
 
