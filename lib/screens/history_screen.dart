@@ -324,20 +324,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 }
               }
               
-              // Group items by date (day)
+              // Group items by time periods
               Map<String, List<History>> groupedByDate = {};
               for (History item in users) {
                 DateTime date = DateTime.parse(item.date).toLocal();
-                String dateKey = DateFormat('yyyy-MM-dd').format(date);
-                if (!groupedByDate.containsKey(dateKey)) {
-                  groupedByDate[dateKey] = [];
+                String periodKey = getTimePeriodKey(date);
+                if (!groupedByDate.containsKey(periodKey)) {
+                  groupedByDate[periodKey] = [];
                 }
-                groupedByDate[dateKey]!.add(item);
+                groupedByDate[periodKey]!.add(item);
               }
               
-              // Sort each group by time and sort groups by date
+              // Sort each group by time and sort groups by custom order
               List<String> sortedDateKeys = groupedByDate.keys.toList();
-              sortedDateKeys.sort((a, b) => reverseSort ? a.compareTo(b) : b.compareTo(a));
+              sortedDateKeys.sort((a, b) {
+                int orderA = getTimePeriodOrder(a);
+                int orderB = getTimePeriodOrder(b);
+                return reverseSort ? orderB.compareTo(orderA) : orderA.compareTo(orderB);
+              });
               
               for (String dateKey in groupedByDate.keys) {
                 groupedByDate[dateKey]!.sort((a, b) {
@@ -404,19 +408,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget buildDateHeader(String dateKey, {bool isFirst = false}) {
-    DateTime date = DateTime.parse(dateKey);
-    DateTime now = DateTime.now();
-    String displayText;
-    
-    if (DateFormat('yyyy-MM-dd').format(date) == DateFormat('yyyy-MM-dd').format(now)) {
-      displayText = '${DateFormat('d MMM yyyy').format(date)} (Today)';
-    } else if (DateFormat('yyyy-MM-dd').format(date) == DateFormat('yyyy-MM-dd').format(now.subtract(const Duration(days: 1)))) {
-      displayText = '${DateFormat('d MMM yyyy').format(date)} (Yesterday)';
-    } else {
-      displayText = DateFormat('d MMM yyyy').format(date);
-    }
-    
+  Widget buildDateHeader(String periodKey, {bool isFirst = false}) {
     return Padding(
       padding: EdgeInsets.only(
         top: isFirst ? 20 : 28, 
@@ -425,7 +417,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         bottom: 0
       ),
       child: Text(
-        displayText,
+        periodKey,
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.bold,
@@ -627,6 +619,97 @@ class _HistoryScreenState extends State<HistoryScreen> {
     } else {
       print('Could not launch $url');
       return false;
+    }
+  }
+
+  String getTimePeriodKey(DateTime date) {
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime yesterday = today.subtract(const Duration(days: 1));
+    DateTime weekStart = today.subtract(Duration(days: today.weekday - 1));
+    DateTime monthStart = DateTime(now.year, now.month, 1);
+    DateTime yearStart = DateTime(now.year, 1, 1);
+    
+    DateTime dateOnly = DateTime(date.year, date.month, date.day);
+    
+    // Today
+    if (dateOnly.isAtSameMomentAs(today)) {
+      return 'Today';
+    }
+    
+    // Yesterday
+    if (dateOnly.isAtSameMomentAs(yesterday)) {
+      return 'Yesterday';
+    }
+    
+    // This Week (excluding today and yesterday)
+    if (dateOnly.isAfter(weekStart.subtract(const Duration(days: 1))) && 
+        dateOnly.isBefore(yesterday)) {
+      return 'This Week';
+    }
+    
+    // This Month (excluding this week)
+    if (dateOnly.isAfter(monthStart.subtract(const Duration(days: 1))) && 
+        dateOnly.isBefore(weekStart)) {
+      return 'This Month';
+    }
+    
+    // This Year (excluding this month)
+    if (dateOnly.isAfter(yearStart.subtract(const Duration(days: 1))) && 
+        dateOnly.isBefore(monthStart)) {
+      return 'This Year';
+    }
+    
+    // Last Year
+    DateTime lastYearStart = DateTime(now.year - 1, 1, 1);
+    DateTime lastYearEnd = DateTime(now.year - 1, 12, 31);
+    if (dateOnly.isAfter(lastYearStart.subtract(const Duration(days: 1))) && 
+        dateOnly.isBefore(lastYearEnd.add(const Duration(days: 1)))) {
+      return 'Last Year';
+    }
+    
+    // Last 2 Years
+    DateTime twoYearsAgoStart = DateTime(now.year - 2, 1, 1);
+    DateTime twoYearsAgoEnd = DateTime(now.year - 2, 12, 31);
+    if (dateOnly.isAfter(twoYearsAgoStart.subtract(const Duration(days: 1))) && 
+        dateOnly.isBefore(twoYearsAgoEnd.add(const Duration(days: 1)))) {
+      return 'Last 2 Years';
+    }
+    
+    // Last 3 Years
+    DateTime threeYearsAgoStart = DateTime(now.year - 3, 1, 1);
+    DateTime threeYearsAgoEnd = DateTime(now.year - 3, 12, 31);
+    if (dateOnly.isAfter(threeYearsAgoStart.subtract(const Duration(days: 1))) && 
+        dateOnly.isBefore(threeYearsAgoEnd.add(const Duration(days: 1)))) {
+      return 'Last 3 Years';
+    }
+    
+    // A Long Time Ago (anything older than 3 years)
+    return 'A Long Time Ago';
+  }
+
+  int getTimePeriodOrder(String period) {
+    switch (period) {
+      case 'Today':
+        return 0;
+      case 'Yesterday':
+        return 1;
+      case 'This Week':
+        return 2;
+      case 'This Month':
+        return 3;
+      case 'This Year':
+        return 4;
+      case 'Last Year':
+        return 5;
+      case 'Last 2 Years':
+        return 6;
+      case 'Last 3 Years':
+        return 7;
+      case 'A Long Time Ago':
+        return 8;
+      default:
+        return 9;
     }
   }
 
