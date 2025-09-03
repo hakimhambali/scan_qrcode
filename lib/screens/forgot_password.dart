@@ -79,23 +79,36 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     width: 300,
                     height: 40,
                     onPressed: () async {
-                        validate = validateEmail(emailController.text);
+                        // Validate email first
+                        if (emailController.text.trim().isEmpty) {
+                          showNotification(context, 'Please enter your email address');
+                          return;
+                        }
+                        
+                        validate = validateEmail(emailController.text.trim());
                         setState(() {});
+                        
+                        if (!validate) {
+                          showNotification(context, 'Please enter a valid email address');
+                          return;
+                        }
+                        
                         try {
                           await FirebaseAuth.instance.sendPasswordResetEmail(
-                              email: emailController.text);
+                              email: emailController.text.trim());
                           ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(
                             const SnackBar(
                                 backgroundColor: Colors.green,
                                 content: Text(
-                                    'Successfully request to reset password',
+                                    'Password reset email sent! Please check your email (including spam folder)',
                                     style: const TextStyle(color: Colors.white))),
                           );
                           Navigator.pop(context);
                         } on FirebaseAuthException catch (e) {
-                          if (validate == true) {
-                            showNotification(context, e.message.toString());
-                          }
+                          String errorMessage = getPasswordResetErrorMessage(e.code);
+                          showNotification(context, errorMessage);
+                        } catch (e) {
+                          showNotification(context, 'An unexpected error occurred. Please try again.');
                         }
                       },
                   ),
@@ -122,7 +135,34 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   void showNotification(BuildContext context, String message) {
     ScaffoldMessenger.of(context)..removeCurrentSnackBar()..showSnackBar(SnackBar(
-        backgroundColor: Colors.purple.shade900,
+        backgroundColor: Colors.red,
         content: Text(message.toString(), style: const TextStyle(color: Colors.white))));
+  }
+
+  String getPasswordResetErrorMessage(String errorCode) {
+    switch (errorCode) {
+      case 'user-not-found':
+        return 'No account found with this email address. Please check your email or create a new account.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      case 'email-already-in-use':
+        return 'This email is already registered. Try logging in instead.';
+      case 'operation-not-allowed':
+        return 'Password reset is currently disabled. Please contact support.';
+      case 'weak-password':
+        return 'Please choose a stronger password.';
+      case 'auth/captcha-check-failed':
+      case 'captcha-check-failed':
+        return 'Security verification failed. Please try again or use a different device/network.';
+      case 'auth/missing-recaptcha-token':
+      case 'missing-recaptcha-token':
+        return 'Security verification required. Please try again or contact support if the issue persists.';
+      default:
+        return 'Password reset failed. Please try again or contact support if the issue persists.';
+    }
   }
 }
